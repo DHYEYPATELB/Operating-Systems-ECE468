@@ -4,15 +4,19 @@ int main () {
 
 double x;
 //char *word[100];
-int z = 0;
+//int z = 0;
+int len = 0;
 
 printf("enter whatever the fuck you want \n");
 
-z = scanf("%lf", &x);
+scanf("%lf", &x);
 
-printf("The length is: %d", z);
 printf("\n");
-printf("%.3f", x);
+printf("%.3f \n", x);
+
+len = sizeof(x);
+printf("size of is: %i", len);
+
 // 6 makes the entire field 6 characters big
 
 /*
