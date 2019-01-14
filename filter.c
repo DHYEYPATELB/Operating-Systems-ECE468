@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
    double input; // the input stream typed by input by user
    
    char oneLine[LINELEN];
+   //char twoLine[LINELEN];
    
    // Override the default value with a value from the configuration file.
    // open the configuration file
@@ -26,10 +27,17 @@ int main(int argc, char *argv[])
    if ( (fp = fopen("filter.cfg", "r")) != NULL )
    {
       // read the first line of the config file
-      if ( fgets(oneLine, LINELEN, fp) )
+      // where oneLine is BUFFER
+      // where LINELEN is sizeof BUFFER
+      // where fp is stream
+      while( fgets(oneLine, LINELEN, fp) != NULL)
       {
          // get an operand from the config file
          prec = atoi(oneLine);
+         // 5+prec adds 5 spaces to precision so the column spacing is not disturbed when a prec parameter is passed
+         colWidth = 5+prec;
+         cols = atoi(oneLine);
+         
       }
    }
    
