@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
    int prec = 13; // default value for precision is 13 decimal places.
    int colWidth = 18; // 13 for decimal, 5 for integer = 18 
    int count =  0; // keep track of length of input stream, i.e. "10 55 13 666 77" has length 5.
-   double x;
+   double input; // the input stream typed by input by user
    
    char oneLine[LINELEN];
    
@@ -35,11 +35,16 @@ int main(int argc, char *argv[])
    
    // Override the default value with an environment variable value.
    char *opPrec = getenv( "Precision" );
-   //char *opCols = getenv( "Columns );
+   char *opCols = getenv( "Columns" );
    if (opPrec != NULL)
    {  // get an operand from the environment
       prec = atoi(opPrec);
-      //cols = atoi(opCols);
+      // 5+prec adds 5 spaces to precision so the column spacing is not disturbed when a prec parameter is passed
+      colWidth = 5+prec;
+   }
+   if(opCols != NULL) 
+   {  // get an operand from the environment
+      cols = atoi(opCols);
    }
    
    // Get a command line argument (if it exists) to set precision. If it's not there, do nothing and just use default precision (13)
@@ -59,7 +64,7 @@ int main(int argc, char *argv[])
    printf("Enter input stream numbers: \n");
       
    // While loop spits output and formats it
-   while (scanf("%lf", &x) != EOF)
+   while (scanf("%lf", &input) != EOF)
    {
    
    // this keeps 2 spaces ONLY after the 1st column
@@ -68,11 +73,11 @@ int main(int argc, char *argv[])
    printf("  ");
    } 
    // Asterisk(*) in format string keeps precision dynamic and column width. Default value for precision is 13 and column width is 18.
-      printf("%*.*f", colWidth,prec, x);
+      printf("%*.*f", colWidth,prec, input);
      
       count++;
 
-   // When count == cols, \n is output to format columns
+   // When counter 'count' == cols, \n is output to format columns per the col parameter passed to function
    if (count == cols) 
    {
       printf("\n");
