@@ -30,15 +30,18 @@ int main(int argc, char *argv[])
       // where oneLine is BUFFER
       // where LINELEN is sizeof BUFFER
       // where fp is stream
-      while( fgets(oneLine, LINELEN, fp) != NULL)
+      if( fgets(oneLine, LINELEN, fp) != NULL)
       {
          // get an operand from the config file
          prec = atoi(oneLine);
          // 5+prec adds 5 spaces to precision so the column spacing is not disturbed when a prec parameter is passed
-         colWidth = 5+prec;
-         cols = atoi(oneLine);
-         
+         colWidth = 5+prec; 
       }
+      if( fgets(oneLine, LINELEN, fp) != NULL)
+      {
+      cols = atoi(oneLine);
+      }
+      
    }
    
    // Override the default value with an environment variable value.
