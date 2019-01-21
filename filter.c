@@ -7,7 +7,6 @@ Dr. Roger L Kraft
 #include <stdio.h>   // scanf(), fscanf(), fprintf(), fopen()
 #include <stdlib.h>  // atoi(), getenv()
 
-
 #define  LINELEN  64
 
 int main(int argc, char *argv[])
@@ -70,7 +69,7 @@ int main(int argc, char *argv[])
      }
    
    // User gets prompted to enter input
-   printf("Enter input stream numbers: \n");
+   printf("Enter input stream numbers OR pipe source.exe into filter.exe: \n");
       
    // While loop spits output and formats it
    while (scanf("%lf", &input) != EOF)
