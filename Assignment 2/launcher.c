@@ -85,7 +85,7 @@ int main () {
  
       
       if(selection == 3) {
-      printf("waiting for program 3 to terminate...");
+      printf("waiting for program 3 to terminate... \n");
       /* Wait for special program 3. cmd.exe to close, then close all the handles */
          if( !WaitForSingleObject(processInfo[3].hProcess,INFINITE) )
             {
@@ -101,7 +101,8 @@ int main () {
          
          if (GetExitCodeProcess(processInfo[selection].hProcess, &exitCode) == FALSE)
          {
-            // Handle GetExitCodeProcess failure
+            printf("3program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
+            printf("4program 3 exited with return value %d\n\n",exitCode);
          }
 
             if (exitCode != STILL_ACTIVE)
