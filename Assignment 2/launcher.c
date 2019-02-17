@@ -9,24 +9,35 @@ int main () {
    int selection;
    int i;
    
-   //char buffer[50];
+   #define NUMBER_OF_PROCESSES 5 // 5 total processes
+  
+   // COMSPEC => C:\WINDOWS\system32\cmd.exe
+   // SYSTEMDRIVE => C:
+   // SystemRoot => C:\WINDOWS
+   // windir => C:\WINDOWS
+   // ProgramFiles => C:\Program Files (x86)
+   // OS => Windows_NT
+   
+   //testing environment variables output
+   char *pWindir = getenv("windir");
+   char *pProgFiles = getenv("ProgramFiles");
+   char *pOS = getenv("OS");
+   printf("%s \n", pWindir);
+   printf("%s \n", pProgFiles);
+   printf("%s \n", pOS);
    
    // getting environment variables
-   //char *pComSpec = getenv( "ComSpec"); // C:\WINDOWS\system32\cmd.exe
-   //char *pSystemDrive = getenv( "SystemDrive"); // C:
-   //char *pSystemRoot = getenv( "SystemRoot"); // C:\WINDOWS
-   //char *pwindir = getenv( "windir" ); // C:\WINDOWS
-   //char *pProgramFiles = getenv( "ProgramFiles" ); // C:\Program Files
-   
    char note_dir[256];
-   sprintf(note_dir, "%s\\notepad.exe", getenv("SystemRoot"));
+   sprintf(note_dir, "%s\\notepad.exe", getenv("SystemRoot")); 
+   char word_dir[256];
+   sprintf(word_dir, "%s\\Windows NT\\Accessories\\wordpad.exe", getenv("ProgramFiles"));
    char cmd_dir[256];
    sprintf(cmd_dir, "%s", getenv("ComSpec"));
    char calc_dir[256];
    sprintf(calc_dir, "%s\\system32\\calc.exe", getenv("SystemRoot"));
+   char exp_dir[256];
+   sprintf(exp_dir, "%s\\explorer.exe", getenv("SystemRoot"));
    
-   #define NUMBER_OF_PROCESSES 5 // 5 total processes
-
    LPTSTR lpCommandLine[NUMBER_OF_PROCESSES]; // LPTSTR is a (non-const) TCHAR string
    PROCESS_INFORMATION processInfo[NUMBER_OF_PROCESSES];
 
@@ -38,10 +49,11 @@ int main () {
    
      /* set up the command lines */
    lpCommandLine[0] = note_dir; // C:\\Windows\\notepad.exe
-   lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"; // wordpad
+   lpCommandLine[1] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
    lpCommandLine[2] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
    lpCommandLine[3] = calc_dir; // C:\\Windows\\system32\\calc.exe
-   lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
+   //lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
+   lpCommandLine[4] = exp_dir; // C:\\Windows\\explorer.exe
    
    /* create processes loop using Do While Loop*/
    do {
@@ -74,12 +86,15 @@ int main () {
       //LPDWORD lpExitCode
       //);
       
+      if(selection == 3) {
+      printf("waiting for program 3 to terminate...");
       /* Wait for special program 3. cmd.exe to close, then close all the handles */
-      if( !WaitForSingleObject(processInfo[2].hProcess,INFINITE) )
-       {
-      CloseHandle(processInfo[2].hThread);
-      CloseHandle(processInfo[2].hProcess);
-      }
+         if( !WaitForSingleObject(processInfo[2].hProcess,INFINITE) )
+            {
+            CloseHandle(processInfo[2].hThread);
+            CloseHandle(processInfo[2].hProcess);
+            }
+         }
       
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
