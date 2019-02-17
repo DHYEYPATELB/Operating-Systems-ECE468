@@ -40,6 +40,7 @@ int main () {
    
    LPTSTR lpCommandLine[NUMBER_OF_PROCESSES]; // LPTSTR is a (non-const) TCHAR string
    PROCESS_INFORMATION processInfo[NUMBER_OF_PROCESSES];
+   DWORD exitCode = 0;
 
    STARTUPINFO startInfo;
    ZeroMemory(&startInfo, sizeof(startInfo));
@@ -48,12 +49,12 @@ int main () {
    //printf("Your selection was: %d \n", selection);
    
      /* set up the command lines */
-   lpCommandLine[0] = note_dir; // C:\\Windows\\notepad.exe
-   lpCommandLine[1] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
-   lpCommandLine[2] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
-   lpCommandLine[3] = calc_dir; // C:\\Windows\\system32\\calc.exe
-   //lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
-   lpCommandLine[4] = exp_dir; // C:\\Windows\\explorer.exe
+   lpCommandLine[1] = note_dir; // C:\\Windows\\notepad.exe
+   lpCommandLine[2] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
+   lpCommandLine[3] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
+   lpCommandLine[4] = calc_dir; // C:\\Windows\\system32\\calc.exe
+   //lpCommandLine[5] = "C:\\Windows\\explorer.exe"; // explorer.exe
+   lpCommandLine[5] = exp_dir; // C:\\Windows\\explorer.exe
    
    /* create processes loop using Do While Loop*/
    do {
@@ -68,33 +69,46 @@ int main () {
    printf("Enter your choice now: ");
    scanf("%d", &selection);
    
-   if( !CreateProcess(NULL, lpCommandLine[selection-1], NULL, NULL, TRUE,
+   if( !CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
-                         NULL, NULL, &startInfo, &processInfo[selection-1]) )
+                         NULL, NULL, &startInfo, &processInfo[selection]) )
       {
           printError("CreateProcess");
       }
       else
       {
-         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection-1].dwProcessId);
+         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId);
       }
       
      
       
-      //BOOL GetExitCodeProcess(
-      //HANDLE  hProcess,
-      //LPDWORD lpExitCode
-      //);
+ 
       
       if(selection == 3) {
       printf("waiting for program 3 to terminate...");
       /* Wait for special program 3. cmd.exe to close, then close all the handles */
-         if( !WaitForSingleObject(processInfo[2].hProcess,INFINITE) )
+         if( !WaitForSingleObject(processInfo[3].hProcess,INFINITE) )
             {
-            CloseHandle(processInfo[2].hThread);
-            CloseHandle(processInfo[2].hProcess);
+            CloseHandle(processInfo[3].hThread);
+            CloseHandle(processInfo[3].hProcess);
             }
          }
+         
+        // if( GetExitCodeProcess(processInfo[2].hProcess,) > 0) {
+         //printf("The exit code is = %d\n\n",(int)processInfo[selection-1].dwProcessId);
+         //}
+         
+         
+         if (GetExitCodeProcess(processInfo[selection].hProcess, &exitCode) == FALSE)
+         {
+            // Handle GetExitCodeProcess failure
+         }
+
+            if (exitCode != STILL_ACTIVE)
+            {
+            printf("1program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
+            printf("2program 3 exited with return value %d\n\n",exitCode);
+            }
       
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
