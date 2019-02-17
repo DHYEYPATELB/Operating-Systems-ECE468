@@ -17,7 +17,22 @@ int main () {
    STARTUPINFO startInfo;
    ZeroMemory(&startInfo, sizeof(startInfo));
    startInfo.cb = sizeof(startInfo);
-
+   
+   //printf("Your selection was: %d \n", selection);
+   
+     /* set up the command lines */
+   //lpCommandLine[0] = "vgcvb"; // quit
+   lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // notepad
+   lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"; // wordpad
+   lpCommandLine[2] = "C:\\Windows\\System32\\cmd.exe"; // cmd.exe
+   lpCommandLine[3] = "C:\\Windows\\system32\\calc.exe"; // calc.exe
+   lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
+   
+   //while (selection != 0) {
+   //for (i = 0; i < NUMBER_OF_PROCESSES; i++) {
+   
+   /* create processes loop using Do While Loop*/
+   do {
    
    printf("\nPlease make a choice from the following list. \n"
    "  0: Quit \n"
@@ -30,19 +45,6 @@ int main () {
    printf("Enter your choice now: ");
    scanf("%d", &selection);
    
-   printf("Your selection was: %d \n", selection);
-   
-     /* set up the command lines */
-   //lpCommandLine[0] = "vgcvb"; // quit
-   lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // notepad
-   lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"; // wordpad
-   lpCommandLine[2] = "C:\\Windows\\System32\\cmd.exe"; // cmd.exe
-   lpCommandLine[3] = "C:\\Windows\\system32\\calc.exe"; // calc.exe
-   lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
-   
-   /* create processes loop */
-   //while (selection != 0) {
-   //for (i = 0; i < NUMBER_OF_PROCESSES; i++) {
    if( !CreateProcess(NULL, lpCommandLine[selection-1], NULL, NULL, FALSE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
                          NULL, NULL, &startInfo, &processInfo[selection-1]) )
@@ -53,6 +55,8 @@ int main () {
       {
          printf("Started program %d with pid = %d\n\n", selection-1, (int)processInfo[selection-1].dwProcessId);
       }
+      } // end of do
+      while(selection != 0); // break-out-loop condition when user inputs 0, implying QUIT
        //}
    //}
  
