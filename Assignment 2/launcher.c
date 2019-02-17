@@ -26,12 +26,14 @@ int main () {
    " *3: Run cmd shell \n"
    "  4: Run Calculator \n"
    "  5: Run Explorer \n");
+   
    printf("Enter your choice now: ");
    scanf("%d", &selection);
    
    printf("Your selection was: %d \n", selection);
    
      /* set up the command lines */
+   //lpCommandLine[0] = "vgcvb"; // quit
    lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // notepad
    lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"; // wordpad
    lpCommandLine[2] = "C:\\Windows\\System32\\cmd.exe"; // cmd.exe
@@ -40,18 +42,18 @@ int main () {
    
    /* create processes loop */
    //while (selection != 0) {
-   for (i = 0; i < NUMBER_OF_PROCESSES; i++) {
-   if( !CreateProcess(NULL, lpCommandLine[i], NULL, NULL, FALSE,
+   //for (i = 0; i < NUMBER_OF_PROCESSES; i++) {
+   if( !CreateProcess(NULL, lpCommandLine[selection-1], NULL, NULL, FALSE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
-                         NULL, NULL, &startInfo, &processInfo[i]) )
+                         NULL, NULL, &startInfo, &processInfo[selection-1]) )
       {
           printError("CreateProcess");
       }
       else
       {
-         printf("Started program %d with pid = %d\n\n", i, (int)processInfo[i].dwProcessId);
+         printf("Started program %d with pid = %d\n\n", selection-1, (int)processInfo[selection-1].dwProcessId);
       }
-       }
+       //}
    //}
  
    return 0;
