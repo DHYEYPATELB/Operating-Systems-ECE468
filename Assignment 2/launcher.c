@@ -29,9 +29,18 @@ int main () {
    printf("Enter your choice now: ");
    scanf("%d", &selection);
    
-   //printf("Your selection was: %d", selection);
+   printf("Your selection was: %d \n", selection);
    
-   while (selection != 0) {
+     /* set up the command lines */
+   lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // notepad
+   lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"; // wordpad
+   lpCommandLine[2] = "C:\\Windows\\System32\\cmd.exe"; // cmd.exe
+   lpCommandLine[3] = "C:\\Windows\\system32\\calc.exe"; // calc.exe
+   lpCommandLine[4] = "C:\\Windows\\explorer.exe"; // explorer.exe
+   
+   /* create processes loop */
+   //while (selection != 0) {
+   for (i = 0; i < NUMBER_OF_PROCESSES; i++) {
    if( !CreateProcess(NULL, lpCommandLine[i], NULL, NULL, FALSE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
                          NULL, NULL, &startInfo, &processInfo[i]) )
@@ -42,20 +51,9 @@ int main () {
       {
          printf("Started program %d with pid = %d\n\n", i, (int)processInfo[i].dwProcessId);
       }
-   }
-   
-   
-   
-
-
-   /* set up the command lines */
-   lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // notepad
-   lpCommandLine[1] = "C:\\Program Files\\windows nt\\accessories"; // wordpad
-   lpCommandLine[2] = "C:\\Windows\\System32\\nslookup.exe"; // cmd.exe
-   lpCommandLine[3] = "C:\\Windows\\system32\\calc.exe"; // calc.exe
-   lpCommandLine[4] = "C:\\Windows\\System32\\nslookup.exe"; // explorer.exe
-
-
+       }
+   //}
+ 
    return 0;
 }
 
