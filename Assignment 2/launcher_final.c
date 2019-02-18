@@ -103,10 +103,10 @@ int main () {
          }
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
-     
-   
+      exit (0);
+    
  
-  return 0;
+  //return 0;
 }
 
 /****************************************************************
