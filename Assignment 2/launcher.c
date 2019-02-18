@@ -39,12 +39,15 @@ int main () {
    sprintf(exp_dir, "%s\\explorer.exe", getenv("SystemRoot"));
    
    LPTSTR lpCommandLine[NUMBER_OF_PROCESSES]; // LPTSTR is a (non-const) TCHAR string
+   //LPCSTR lpCurrentDirectory[11] = "speak to me";
    PROCESS_INFORMATION processInfo[NUMBER_OF_PROCESSES];
-   DWORD exitCode = 0;
-
+   
    STARTUPINFO startInfo;
    ZeroMemory(&startInfo, sizeof(startInfo));
    startInfo.cb = sizeof(startInfo);
+   
+   
+   //DWORD exitCode = 0;
    
    //printf("Your selection was: %d \n", selection);
    
@@ -69,22 +72,36 @@ int main () {
    printf("Enter your choice now: ");
    scanf("%d", &selection);
    
-   if( !CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
+   if( (selection != 3) && (selection != 0) ) {
+      if( !CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
                          NULL, NULL, &startInfo, &processInfo[selection]) )
-      {
+         {
           printError("CreateProcess");
+         }
+         else
+         {
+         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId); 
+         // dwProcessId is the PID of newly created process
+         }
       }
-      else
+      else if(selection == 3)
       {
-         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId);
-      }
       
-     
+       //startInfo.lpDesktop = "speak to me";
+       startInfo.lpTitle = "What is your commmand?";
+       startInfo.dwX = 0;
+       startInfo.dwY = 0;
+       startInfo.dwFillAttribute = FOREGROUND_BLUE| BACKGROUND_RED| BACKGROUND_GREEN| BACKGROUND_BLUE; 
+       startInfo.dwFlags = 0x00000010 | 0x00000004;
+       
+    
+            CreateProcess(NULL, lpCommandLine[3], NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
+                         NULL, NULL, &startInfo, &processInfo[3]);
+                         
+                         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId);
       
- 
-      
-      if(selection == 3) {
       printf("waiting for program 3 to terminate... \n");
       /* Wait for special program 3. cmd.exe to close, then close all the handles */
          if( !WaitForSingleObject(processInfo[3].hProcess,INFINITE) )
@@ -92,24 +109,35 @@ int main () {
             CloseHandle(processInfo[3].hThread);
             CloseHandle(processInfo[3].hProcess);
             }
-         }
+      
+      }
+      
+      //if(selection == 3) {
+      //printf("waiting for program 3 to terminate... \n");
+      /* Wait for special program 3. cmd.exe to close, then close all the handles */
+        // if( !WaitForSingleObject(processInfo[3].hProcess,INFINITE) )
+           // {
+            //CloseHandle(processInfo[3].hThread);
+            //CloseHandle(processInfo[3].hProcess);
+            //}
+        // }
          
         // if( GetExitCodeProcess(processInfo[2].hProcess,) > 0) {
          //printf("The exit code is = %d\n\n",(int)processInfo[selection-1].dwProcessId);
          //}
          
          
-         if (GetExitCodeProcess(processInfo[selection].hProcess, &exitCode) == FALSE)
-         {
-            printf("3program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
-            printf("4program 3 exited with return value %d\n\n",exitCode);
-         }
+        // if (GetExitCodeProcess(processInfo[selection].hProcess, &exitCode) == FALSE)
+        // {
+           // printf("3program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
+            //printf("4program 3 exited with return value %d\n\n",exitCode);
+         //}
 
-            if (exitCode != STILL_ACTIVE)
-            {
-            printf("1program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
-            printf("2program 3 exited with return value %d\n\n",exitCode);
-            }
+            //if (exitCode != STILL_ACTIVE)
+            //{
+            //printf("1program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
+            //printf("2program 3 exited with return value %d\n\n",exitCode);
+           // }
       
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
