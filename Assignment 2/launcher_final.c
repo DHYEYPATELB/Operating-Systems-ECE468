@@ -18,14 +18,6 @@ int main () {
    // ProgramFiles => C:\Program Files (x86)
    // OS => Windows_NT
    
-   //testing environment variables output
-   char *pWindir = getenv("windir");
-   char *pProgFiles = getenv("ProgramFiles");
-   char *pOS = getenv("OS");
-   printf("%s \n", pWindir);
-   printf("%s \n", pProgFiles);
-   printf("%s \n", pOS);
-   
    // getting environment variables
    char note_dir[256];
    sprintf(note_dir, "%s\\notepad.exe", getenv("SystemRoot")); 
@@ -56,7 +48,6 @@ int main () {
    lpCommandLine[2] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
    lpCommandLine[3] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
    lpCommandLine[4] = calc_dir; // C:\\Windows\\system32\\calc.exe
-   //lpCommandLine[5] = "C:\\Windows\\explorer.exe"; // explorer.exe
    lpCommandLine[5] = exp_dir; // C:\\Windows\\explorer.exe
    
    /* create processes loop using Do While Loop*/
@@ -97,9 +88,7 @@ int main () {
        startInfo.dwY = 0;
        startInfo.dwFillAttribute = FOREGROUND_BLUE| BACKGROUND_RED| BACKGROUND_GREEN| BACKGROUND_BLUE; 
        startInfo.dwFlags = 0x00000010 | 0x00000004;
-       
       
-       
        putenv("PROMPT=speak to me>"); // PROMPT is environment variable
     
             CreateProcess(NULL, lpCommandLine[3], NULL, NULL, TRUE,
@@ -119,33 +108,6 @@ int main () {
             printf("program 3 exited with return value %d\n\n",&exitCode);
       
       }
-      
-      //if(selection == 3) {
-      //printf("waiting for program 3 to terminate... \n");
-      /* Wait for special program 3. cmd.exe to close, then close all the handles */
-        // if( !WaitForSingleObject(processInfo[3].hProcess,INFINITE) )
-           // {
-            //CloseHandle(processInfo[3].hThread);
-            //CloseHandle(processInfo[3].hProcess);
-            //}
-        // }
-         
-        // if( GetExitCodeProcess(processInfo[2].hProcess,) > 0) {
-         //printf("The exit code is = %d\n\n",(int)processInfo[selection-1].dwProcessId);
-         //}
-         
-         
-        // if (GetExitCodeProcess(processInfo[selection].hProcess, &exitCode) == FALSE)
-        // {
-           // printf("3program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
-            //printf("4program 3 exited with return value %d\n\n",exitCode);
-         //}
-
-            //if (exitCode != STILL_ACTIVE)
-            //{
-            //printf("1program 3 exited with return value %d\n\n",(int)processInfo[selection].dwProcessId);
-            //printf("2program 3 exited with return value %d\n\n",exitCode);
-           // }
       
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
@@ -184,6 +146,3 @@ void printError(char* functionName)
     LocalFree( lpMsgBuf );
     //ExitProcess(1);  // terminate the program
 }//printError
-
-
-
