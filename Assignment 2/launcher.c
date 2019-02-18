@@ -1,4 +1,5 @@
 #include <stdio.h> // scanf(), fscanf(), fprintf(), fopen()
+#include <stdlib.h>
 #include <windows.h> // contains declarations for all of the functions in the Windows API
 
 // function prototype
@@ -7,7 +8,13 @@ void printError(char* functionName);
 int main () {
 
    int selection;
-   int i;
+   
+  #define SHELLSCRIPT "\
+   #/bin/bash \n\
+   echo \"hello\" \n\
+   echo \"how are you\" \n\
+   echo \"today\" \n\
+   "
    
    #define NUMBER_OF_PROCESSES 5 // 5 total processes
   
@@ -47,7 +54,9 @@ int main () {
    startInfo.cb = sizeof(startInfo);
    
    
-   DWORD exitCode = 0;
+   DWORD lpExitCode = 0;
+   //double lpExitCode = 0.0;
+   //float lpExitCode = 0.0;
    
    //printf("Your selection was: %d \n", selection);
    
@@ -112,11 +121,12 @@ int main () {
       /* Wait for special program 3. cmd.exe to close, then close all the handles */
          if( !WaitForSingleObject(processInfo[selection].hProcess,INFINITE) )
             {
+            GetExitCodeProcess(processInfo[selection].hProcess, &lpExitCode);
             CloseHandle(processInfo[selection].hThread);
             CloseHandle(processInfo[selection].hProcess);
-            GetExitCodeProcess(processInfo[selection].hProcess, &exitCode);
+            
             }
-            printf("program 3 exited with return value %d\n\n",&exitCode);
+            printf("program 3 exited with return value %d\n\n",&lpExitCode);
       
       }
       
@@ -149,9 +159,18 @@ int main () {
       
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
-     
-   
- 
+      
+      //argc = 1;
+      //argv = (char**)malloc(sizeof(char*)*argc);
+      //argv[0] = "EXIT";
+      //main(argc, &argv[0]);
+      
+      puts("Will execute sh with the following script :");
+      puts(SHELLSCRIPT);
+      puts("Starting now:");
+      system(SHELLSCRIPT);
+    
+      
    return 0;
 }
 
