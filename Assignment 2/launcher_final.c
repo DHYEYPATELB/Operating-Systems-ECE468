@@ -11,6 +11,8 @@ int main () {
 
    #define NUMBER_OF_PROCESSES 5 // 5 total processes
   
+   // environment variable directories
+  
    // COMSPEC => C:\WINDOWS\system32\cmd.exe
    // SYSTEMDRIVE => C:
    // SystemRoot => C:\WINDOWS
@@ -78,12 +80,12 @@ int main () {
       else if(selection == 3)
          {
          startInfo.lpTitle = "What is your commmand?";
-         startInfo.dwX = 0;
-         startInfo.dwY = 0;
+         startInfo.dwX = 0; // x offset
+         startInfo.dwY = 0; // y offset
          startInfo.dwFillAttribute = FOREGROUND_BLUE| BACKGROUND_RED| BACKGROUND_GREEN| BACKGROUND_BLUE; 
-         startInfo.dwFlags = 0x00000010 | 0x00000004;
+         startInfo.dwFlags = 0x00000010 | 0x00000004; // OR'ing bits of flags
       
-         putenv("PROMPT=speak to me>"); // PROMPT is environment variable
+         putenv("PROMPT=Speak to me>"); // PROMPT is environment variable
     
          CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
@@ -104,9 +106,8 @@ int main () {
       } // end of Do block
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
       exit (0);
-    
  
-  //return 0;
+      //return 0;
 }
 
 /****************************************************************
