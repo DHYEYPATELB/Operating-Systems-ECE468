@@ -22,13 +22,13 @@ int main () {
    
    // getting environment variables
    char note_dir[256];
-   sprintf(note_dir, "%s\\notepad.exe", getenv("SystemRoot")); 
+   sprintf(note_dir, "%s\\system32\\notepad.exe", getenv("windir")); 
    char word_dir[256];
    sprintf(word_dir, "%s\\Windows NT\\Accessories\\wordpad.exe", getenv("ProgramFiles"));
    char cmd_dir[256];
    sprintf(cmd_dir, "%s", getenv("ComSpec"));
    char calc_dir[256];
-   sprintf(calc_dir, "%s\\system32\\calc.exe", getenv("SystemRoot"));
+   sprintf(calc_dir, "%s\\system32\\calc.exe", getenv("windir"));
    char exp_dir[256];
    sprintf(exp_dir, "%s\\explorer.exe", getenv("windir"));
    
@@ -42,12 +42,17 @@ int main () {
    DWORD lpExitCode = 0;
    
    /* set up the command lines */
-   lpCommandLine[1] = note_dir; // C:\\Windows\\notepad.exe
-   lpCommandLine[2] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
-   lpCommandLine[3] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
-   lpCommandLine[4] = calc_dir; // C:\\Windows\\system32\\calc.exe
-   lpCommandLine[5] = exp_dir; // C:\\Windows\\explorer.exe
-   
+   lpCommandLine[0] = note_dir; // C:\\Windows\\system32\\notepad.exe
+   //lpCommandLine[0] = "C:\\Windows\\notepad.exe"; // C:\\Windows\\notepad.exe
+   lpCommandLine[1] = word_dir; // C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe
+   //lpCommandLine[1] = "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe";
+   lpCommandLine[2] = cmd_dir; // C:\\Windows\\System32\\cmd.exe
+   //lpCommandLine[2] = "C:\\Windows\\System32\\cmd.exe";  
+   lpCommandLine[3] = calc_dir; // C:\\Windows\\system32\\calc.exe
+   //lpCommandLine[3] = "C:\\Windows\\system32\\calc.exe"; 
+   lpCommandLine[4] = exp_dir; // C:\\Windows\\explorer.exe
+   //lpCommandLine[4] = "C:\\Windows\\explorer.exe";
+  
    /* create processes loop using Do While Loop*/
    do {
       printf("\nPlease make a choice from the following list. \n"
@@ -62,17 +67,17 @@ int main () {
       scanf("%d", &selection);
    
       // if user inputs 1, 2, 4, or 5
-      if( (selection != 3) && (selection != 0) ) {
-         if( !CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
+      if( (selection != 3) && (selection != 0) ) 
+         {
+         if( !CreateProcess(NULL, lpCommandLine[selection-1], NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
-                         NULL, NULL, &startInfo, &processInfo[selection]) )
+                         NULL, NULL, &startInfo, &processInfo[selection-1]) )
             {
             printError("CreateProcess");
             }
          else
             {
-            printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId); 
-            // dwProcessId is the PID of newly created process
+            printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection-1].dwProcessId); // dwProcessId is the PID of newly created process
             }
          }
       
@@ -87,27 +92,32 @@ int main () {
       
          putenv("PROMPT=Speak to me>"); // PROMPT is environment variable
     
-         CreateProcess(NULL, lpCommandLine[selection], NULL, NULL, TRUE,
+         CreateProcess(NULL, lpCommandLine[selection-1], NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
-                         NULL, NULL, &startInfo, &processInfo[selection]);
+                         NULL, NULL, &startInfo, &processInfo[selection-1]);
                          
-         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection].dwProcessId);
+         printf("Started program %d with pid = %d\n\n", selection, (int)processInfo[selection-1].dwProcessId);
          printf("waiting for program 3 to terminate... \n");
          
       /* Wait for special program 3, cmd.exe to close, then close all the handles */
-         if( !WaitForSingleObject(processInfo[selection].hProcess,INFINITE) )
+         if( !WaitForSingleObject(processInfo[selection-1].hProcess,INFINITE) )
             {
-            CloseHandle(processInfo[selection].hThread);
-            CloseHandle(processInfo[selection].hProcess);
-            GetExitCodeProcess(processInfo[selection].hProcess, &lpExitCode);
+            GetExitCodeProcess(processInfo[selection-1].hProcess, &lpExitCode);
+            CloseHandle(processInfo[selection-1].hThread);
+            CloseHandle(processInfo[selection-1].hProcess);
+            
             }
-            printf("program 3 exited with return value %d\n\n",&lpExitCode);
+            printf("program 3 exited with return value %d\n\n", &lpExitCode);
          }
+         
       } // end of Do block
+      
       while(selection != 0); // break out loop condition when user inputs 0, implying QUIT
-      exit (0);
+      
+      exit (0); // close cmd.exe window when 0 is input
  
       //return 0;
+      
 }
 
 /****************************************************************
