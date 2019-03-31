@@ -12,15 +12,39 @@ typedef struct processor_data {
 } ProcessorData;
 
 
-int conv2Binary(int num) {
-   
+void conv2Binary(int num) {
    if(num > 0)
    {
    conv2Binary(num/2);
-   
    printf("%d", num % 2);
    }
+}
+
+char *decimal_to_binary(int n)
+{
+   int c, d, count;
+   char *pointer;
    
+   count = 0;
+   pointer = (char*)malloc(32+1);
+   
+   if (pointer == NULL)
+      exit(EXIT_FAILURE);
+     
+   for (c = 31 ; c >= 0 ; c--)
+   {
+      d = n >> c; 
+     
+      if (d & 1)
+         *(pointer+count) = 1 + '0';
+      else
+         *(pointer+count) = 0 + '0';
+     
+      count++;
+   }
+   *(pointer+count) = '\0';
+   
+   return pointer;
 }
 
 /* function prototypes */
@@ -28,8 +52,24 @@ void printError(char* functionName);
 
 int main(int argc, char *argv[])
 {
-   conv2Binary(15);
+    
+    char *pointer;
+    
+    conv2Binary(16);
+    printf("\n");
+    
+    int n = 7;
+    
+    pointer = decimal_to_binary(n);
+    printf("Binary string of %d is: %s\n", n, pointer);
 
+   
+    //printf("%d \n",input);
+    
+   //int z = scanf("%d \n",&input);
+   //printf("%d", z);
+    
+  
    int processorCount = 0;       /* the number of allocated processors */
    ProcessorData *processorPool; /* an array of ProcessorData structures */
    HANDLE *processHandles;       /* an array of handles to processes */
@@ -95,10 +135,25 @@ int main(int argc, char *argv[])
    printf("testing affinity mask (binary) 1: %o \n", lpProcessAffinityMask);
 
    /* count the number of processors set in the affinity mask */
+   int cpuTotal = 0;
+   char *binaryString;
+   binaryString = decimal_to_binary(lpProcessAffinityMask);
+   
+   for (int i=0; binaryString[i] != '\0'; i++) {
+   //printf("%c",binaryString[i]);
+   if(binaryString[i] == '1') 
+   {
+   cpuTotal++;
+   }
+}
+   printf("\nThe number of processors set in affinity mask is: %d",cpuTotal);
+   
+   
 
    /* create, and then initialize, the processor pool data structure */
 
    /* start the first group of processes */
+   
 
    /* Repeatedly wait for a process to finish and then,
       if there are more jobs to run, run a new job on
