@@ -12,11 +12,24 @@ typedef struct processor_data {
 } ProcessorData;
 
 
+int conv2Binary(int num) {
+   
+   if(num > 0)
+   {
+   conv2Binary(num/2);
+   
+   printf("%d", num % 2);
+   }
+   
+}
+
 /* function prototypes */
 void printError(char* functionName);
 
 int main(int argc, char *argv[])
 {
+   conv2Binary(15);
+
    int processorCount = 0;       /* the number of allocated processors */
    ProcessorData *processorPool; /* an array of ProcessorData structures */
    HANDLE *processHandles;       /* an array of handles to processes */
@@ -29,7 +42,6 @@ int main(int argc, char *argv[])
       fprintf(stderr, "       SCHEDULE_TYPE = 2 means \"longest job first\"\n");
       return 0;
    }
-
 
    /* read the job duration times off the command-line */
    int cmdLineArgsArray[argc];
@@ -56,7 +68,6 @@ int main(int argc, char *argv[])
     count++;
     }
     
-    
     for(int i=0; i<count; i++) {
     printf("The value for arg %d is %s \n", i,cmdLineArgsArray[i]);
     }
@@ -69,17 +80,19 @@ int main(int argc, char *argv[])
    DWORD_PTR lpSystemAffinityMask = 0;
    
    HANDLE process = GetCurrentProcess();
+   processor_data.processInfo.hProcess = GetCurrentProcess();
 
    BOOL res = GetProcessAffinityMask(GetCurrentProcess(), &lpProcessAffinityMask, &lpSystemAffinityMask);
+   printf("%d 0x%X 0x%X \n",res,lpProcessAffinityMask,lpSystemAffinityMask);
+   printf("testing affinity mask (binary) 1: %d \n", lpProcessAffinityMask);
    
-      printf("%d 0x%X 0x%X \n",
-            res,
-            lpProcessAffinityMask,
-            lpSystemAffinityMask);
-            
    processor_data.running = GetProcessAffinityMask(processor_data.processInfo.hProcess, (PDWORD_PTR)&processor_data.affinityMask, &lpSystemAffinityMask);
+   printf("%d 0x%X 0x%X \n",processor_data.running,processor_data.affinityMask,lpSystemAffinityMask);
+   printf("testing affinity mask (binary) 2: %d \n", processor_data.affinityMask);
    
-      printf("%d 0x%X 0x%X \n",processor_data.running,processor_data.affinityMask,lpSystemAffinityMask);
+   BOOL res2 = GetProcessAffinityMask(process, &lpProcessAffinityMask, &lpSystemAffinityMask);
+   printf("%d 0x%X 0x%X \n",res2,lpProcessAffinityMask,lpSystemAffinityMask);
+   printf("testing affinity mask (binary) 1: %o \n", lpProcessAffinityMask);
 
    /* count the number of processors set in the affinity mask */
 
