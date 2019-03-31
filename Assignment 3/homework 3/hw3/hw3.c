@@ -115,24 +115,30 @@ int main(int argc, char *argv[])
 
    /* get the processor affinity mask for this process */
    ProcessorData processor_data;
+   processor_data.processInfo.hProcess = GetCurrentProcess();
    
    DWORD_PTR lpProcessAffinityMask = 0;
    DWORD_PTR lpSystemAffinityMask = 0;
    
-   HANDLE process = GetCurrentProcess();
-   processor_data.processInfo.hProcess = GetCurrentProcess();
+   HANDLE myProcess = GetCurrentProcess();
+  
 
-   BOOL res = GetProcessAffinityMask(GetCurrentProcess(), &lpProcessAffinityMask, &lpSystemAffinityMask);
-   printf("%d 0x%X 0x%X \n",res,lpProcessAffinityMask,lpSystemAffinityMask);
-   printf("testing affinity mask (binary) 1: %d \n", lpProcessAffinityMask);
+   //BOOL res = GetProcessAffinityMask(GetCurrentProcess(), &lpProcessAffinityMask, &lpSystemAffinityMask);
+   //printf("%d 0x%X 0x%X \n",res,lpProcessAffinityMask,lpSystemAffinityMask);
+   //printf("testing affinity mask (binary) 1: %d \n", lpProcessAffinityMask);
    
-   processor_data.running = GetProcessAffinityMask(processor_data.processInfo.hProcess, (PDWORD_PTR)&processor_data.affinityMask, &lpSystemAffinityMask);
-   printf("%d 0x%X 0x%X \n",processor_data.running,processor_data.affinityMask,lpSystemAffinityMask);
-   printf("testing affinity mask (binary) 2: %d \n", processor_data.affinityMask);
+   //processor_data.running = GetProcessAffinityMask(processor_data.processInfo.hProcess, (PDWORD_PTR)&processor_data.affinityMask, &lpSystemAffinityMask);
+   //printf("%d 0x%X 0x%X \n",processor_data.running,processor_data.affinityMask,lpSystemAffinityMask);
+   //printf("testing affinity mask (binary) 2: %d \n", processor_data.affinityMask);
    
-   BOOL res2 = GetProcessAffinityMask(process, &lpProcessAffinityMask, &lpSystemAffinityMask);
+   BOOL res2 = GetProcessAffinityMask(myProcess, &lpProcessAffinityMask, &lpSystemAffinityMask);
    printf("%d 0x%X 0x%X \n",res2,lpProcessAffinityMask,lpSystemAffinityMask);
-   printf("testing affinity mask (binary) 1: %o \n", lpProcessAffinityMask);
+   printf("testing affinity mask (decimal value) 1: %d \n", lpProcessAffinityMask);
+   printf("testing affinity mask (decimal value) 1: %d \n", &lpProcessAffinityMask);
+    
+   DWORD_PTR testAffinityMask = 1 << atoi(argv[3]); // takes a bit '1' and shifts it left the int value of the argsv input
+   printf("%d\n",testAffinityMask);
+
 
    /* count the number of processors set in the affinity mask */
    int cpuTotal = 0;
@@ -140,7 +146,7 @@ int main(int argc, char *argv[])
    binaryString = decimal_to_binary(lpProcessAffinityMask);
    
    for (int i=0; binaryString[i] != '\0'; i++) {
-   //printf("%c",binaryString[i]);
+   printf("%c",binaryString[i]);
    if(binaryString[i] == '1') 
    {
    cpuTotal++;
