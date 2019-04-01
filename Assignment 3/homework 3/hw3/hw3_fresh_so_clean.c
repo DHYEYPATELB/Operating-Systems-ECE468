@@ -32,20 +32,26 @@ int main(int argc, char *argv[])
 
    /* read the job duration times off the command-line */
    int timesArray[argc];
-    
+   //char timesArray[argc];
+   //char spaceBeforeTime[20];
    int index = 0;
    int timesSize = 0;
     
-   for(int i=1; i<argc; i++) {
+   for(int i = 1; i < argc; i++) {
    //timesArray[index++] = atoi(argv[i]);
    timesArray[index++] = argv[i];
+    
+   //sprintf(timesArray[index++], " %d", atoi(argv[i])); 
+   //printf("%s\n",timesArray[i]);
+   //timesArray[index++] = spaceBeforeTime;
    timesSize++;
    }
     
-   printf("The command line argument size is: %d\n", timesSize);
+   printf("\nThe command line argument size is: %d\n", timesSize);
     
    for(int i=0; i<timesSize; i++) {
-   printf("The value for arg %d is %d \n", i,timesArray[i]);
+   //printf("The value for arg %d is %d \n", i,timesArray[i]);
+   printf("The value for arg %d is %s \n", i, timesArray[i]);
    }
  
    /* get the processor affinity mask for this process */
@@ -114,19 +120,19 @@ int main(int argc, char *argv[])
    
    /* start the first group of processes */
    //for(int i=0; i < timesSize; i++) {
-   if(!CreateProcess("computeProgram_64.exe", " 6", NULL, NULL, TRUE,
-                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_SUSPENDED,
-                         NULL, NULL, &startInfo, processorPool.processInfo))
+   if(!CreateProcess("computeProgram_64.exe", " 10", NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[0].processInfo))
          {
           printError("CreateProcess");
          }
          else
          {
-         printf("Started with pid = %d\n\n", (int)processorPool.processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+         printf("Started with pid = %d\n\n", (int)processorPool[0].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
          }
          
-         SetProcessAffinityMask(processorPool.processInfo.hProcess, processorPool.affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
-         ResumeThread(processorPool.processInfo.hProcess);
+         SetProcessAffinityMask(processorPool[0].processInfo.hProcess, processorPool[0].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+         ResumeThread(processorPool[0].processInfo.hThread);
                          
       //}
       
