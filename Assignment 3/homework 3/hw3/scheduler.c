@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
   
 
    /* get the processor affinity mask for this process */
-   ProcessorData processor_data;
-   processor_data.processInfo.hProcess = GetCurrentProcess();
+   //ProcessorData processor_data;
+   //processor_data.processInfo.hProcess = GetCurrentProcess();
    
    DWORD_PTR lpProcessAffinityMask = 0;
    DWORD_PTR lpSystemAffinityMask = 0;
@@ -154,38 +154,66 @@ int main(int argc, char *argv[])
    /* count the number of processors set in the affinity mask */
    int cpuTotal = 0;
   
-   
    for (int i=0; binaryString[i] != '\0'; i++) {
    //printf("%c",binaryString[i]);
-   if(binaryString[i] == '1') 
-   {
-   cpuTotal++;
-   }
-}
+      if(binaryString[i] == '1') 
+      {
+         cpuTotal++;
+      }
+    }
    printf("\nThis means the total # of available CPU processors for this process/program using char array is: %d",cpuTotal);
    
+    /* Call GetProcessAffinityMask() */
+    /* Use the affinity mask to compute processorCount */
+    
+    
+    DWORD_PTR mask = 0x1; // a 32bit long mask 0000 0000 0000 0000 0000 0000 0000 0001
    
-   DWORD_PTR mask = 0x1;
-   int coreCount = 0;
-    for (int bit=0; bit < 32; bit++)
+    for ( int bit=0; bit < 32; bit++)
     {
         if (mask & lpProcessAffinityMask)
         {
             //if (currentCore != core)
             //{
-               // processAffinityMask &= ~mask;
+               // lpProcessAffinityMask &= ~mask; // is equivalent to lpProcessAffinityMask = lpProcessAffinityMask & ~mask;
             //}
-            coreCount++;
+            processorCount++;
         }
-        mask = mask << 1;
+        mask = mask << 1; //shifts the 1 bit over to the left after each iteration to check if mask & lpProcessAffinityMask are equal to '1'
     }
    
-   printf("\nThis means the total # of available CPU processors for this process/program using bitwise operators is: %d",coreCount);
+   printf("\nThis means the total # of available CPU processors for this process/program using bitwise operators is: %d\n",processorCount);
    
+   DWORD_PTR mask2 = 0x1;
+   int index2=0;
+   
+   int *affinityMaskArray = malloc(sizeof(int) * processorCount);
+   
+   for (int bit2 = 0; bit2 < 32; bit2++) {
+     if (mask2 & lpProcessAffinityMask)
+        {  
+            printf("Decimal Affinity Mask : %d\n", bit2);
+            affinityMaskArray[index2] = mask2;
+            index2++;
+        }
+        mask2 = mask2 << 1;
+       }
+       
+      processorPool = malloc(processorCount * sizeof(ProcessorData));
+       
+       int k = 0;
+       while (k < processorCount) {
+       processorPool[k].affinityMask = affinityMaskArray[k];
+       printf("The value in index %d in processorPool DataStructure is %d\n",k, processorPool[k].affinityMask);
+       k++;
+       }
+       
+  
    //for(int i=0; i<
    //SetProcessAffinityMask(HANDLE hProcess,DWORD_PTR dwProcessAffinityMask);
    
-   
+   //for(int i=0; i<cmdLineArgsSize; i++) {
+         //SetProcessAffinityMask(myProcess, processAffinityMask);
    
    //CreateProcess(NULL, lpCommandLine[i], NULL, NULL, TRUE,
    //                      NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
@@ -193,7 +221,36 @@ int main(int argc, char *argv[])
    
 
    /* create, and then initialize, the processor pool data structure */
+   
+   /* Create the array of ProcessorData structures */
+   printf("\nHello\n");
+      
+      
+      /* Initialize the array of ProcessorData structures
+         Set each affinityMask to the appropriate CPU
+         Set each running to 0 */
 
+      
+      //int poolSize = 0;
+     
+      //int k = 0;
+      //while(k < processorCount) 
+      //for (int k=0; k < 32; k++)
+      //{
+        // processorPool[k].affinityMask = affinityMaskArray[k];
+         //if ( lpProcessAffinityMask & mask2) 
+        // {
+            //processorPool[k].affinityMask = lpProcessAffinityMask & mask2;
+            //printf("%d", processorPool[k].affinityMask);
+         //}
+        // mask = mask << 1;
+         //}
+        // printf("\n");
+       //for(int i=0; i < processorCount; i++) {
+       //printf("The value in index %d in processorPool DataStructure is %d\n",k, processorPool[k].affinityMask);
+      // }
+       
+       
    /* start the first group of processes */
    
 

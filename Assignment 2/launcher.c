@@ -53,7 +53,6 @@ int main () {
    ZeroMemory(&startInfo, sizeof(startInfo));
    startInfo.cb = sizeof(startInfo);
    
-   
    DWORD lpExitCode = 0;
    //double lpExitCode = 0.0;
    //float lpExitCode = 0.0;
