@@ -104,14 +104,16 @@ int main(int argc, char *argv[])
     int cmdLineArgsArray[argc];
     
     int index = 0;
-    int count = 0;
+    int cmdLineArgsSize = 0;
     
     for(int i=1; i<argc; i++) {
     cmdLineArgsArray[index++] = atoi(argv[i]);
-    count++;
+    cmdLineArgsSize++;
     }
     
-    for(int i=0; i<count; i++) {
+    printf("The command line argument size is: %d\n", cmdLineArgsSize);
+    
+    for(int i=0; i<cmdLineArgsSize; i++) {
     printf("The value for arg %d is %d \n", i,cmdLineArgsArray[i]);
     }
   
@@ -160,7 +162,7 @@ int main(int argc, char *argv[])
    cpuTotal++;
    }
 }
-   printf("\nThis means the total # of available CPU processors using char array is: %d",cpuTotal);
+   printf("\nThis means the total # of available CPU processors for this process/program using char array is: %d",cpuTotal);
    
    
    DWORD_PTR mask = 0x1;
@@ -169,7 +171,6 @@ int main(int argc, char *argv[])
     {
         if (mask & lpProcessAffinityMask)
         {
-        
             //if (currentCore != core)
             //{
                // processAffinityMask &= ~mask;
@@ -179,7 +180,12 @@ int main(int argc, char *argv[])
         mask = mask << 1;
     }
    
-   printf("\nThis means the total # of available CPU processors using bitwise operators is: %d",coreCount);
+   printf("\nThis means the total # of available CPU processors for this process/program using bitwise operators is: %d",coreCount);
+   
+   //for(int i=0; i<
+   //SetProcessAffinityMask(HANDLE hProcess,DWORD_PTR dwProcessAffinityMask);
+   
+   
    
    //CreateProcess(NULL, lpCommandLine[i], NULL, NULL, TRUE,
    //                      NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
