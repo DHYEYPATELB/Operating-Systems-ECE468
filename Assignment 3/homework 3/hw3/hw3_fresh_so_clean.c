@@ -57,8 +57,9 @@ int main(int argc, char *argv[])
    printf("%d 0x%X\n",res,lpProcessAffinityMask);
    printf("\n");
    printf("The GetProcessAffinityMask() returns a boolean value of: %d\n", res);
-   printf("The AffinityMask hex value is: 0x%X, decimal value is: %d\n", lpProcessAffinityMask,lpProcessAffinityMask);
-  
+   printf("The AffinityMask hex value is: 0x%X\n", lpProcessAffinityMask,lpProcessAffinityMask);
+   printf("The AffinityMask decimal value is: %d: \n", lpProcessAffinityMask);
+   
    /* count the number of processors set in the affinity mask */
    DWORD_PTR mask = 0x1; // a 32bit long mask 0000 0000 0000 0000 0000 0000 0000 0001
    
@@ -75,7 +76,8 @@ int main(int argc, char *argv[])
         mask = mask << 1; //shifts the 1 bit over to the left after each iteration to check if mask & lpProcessAffinityMask are equal to '1'
     }
    
-   printf("\nThe total # of CPU processors available for this process/program is: %d\n",processorCount);
+   printf("The total # of CPU processors available for this process/program is: %d\n",processorCount);
+   printf("\n");
 
    /* create, and then initialize, the processor pool data structure */
    processorPool = malloc(processorCount * sizeof(ProcessorData));
@@ -99,39 +101,6 @@ int main(int argc, char *argv[])
        
    int k = 0;
    while (k < processorCount) {
-      //if(affinityMaskArray[k] == 1) {
-        // processorPool[0].affinityMask = 1;
-         //processorPool[0].running = 0;
-         //}
-      //if(affinityMaskArray[k] == 1) {
-        // processorPool[1].affinityMask = 2;
-         //processorPool[1].running = 0;
-         //} 
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[2].affinityMask = 4;
-        // processorPool[2].running = 0;
-         //}
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[3].affinityMask = 8;
-         //processorPool[3].running = 0;
-        // }   
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[4].affinityMask = 16;
-         //processorPool[4].running = 0;
-        // }
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[5].affinityMask = 32;
-        // processorPool[5].running = 0;
-        // }
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[6].affinityMask = 64;
-        // processorPool[6].running = 0;
-         //}
-      //if(affinityMaskArray[k] == 1) {
-         //processorPool[7].affinityMask = 128;
-         //processorPool[7].running = 0;
-        // }
-      
       processorPool[k].affinityMask = affinityMaskArray[k];
       processorPool[k].running = 0;
       
@@ -148,57 +117,53 @@ int main(int argc, char *argv[])
    startInfo.cb = sizeof(startInfo);
    
    /* start the first group of processes */
-   //int processesLeft = argc-1;
-   
-   
-   //while(z < argc-2 || processesLeft != 0) {
-   
-   //if(processorCount < argc-2) {
-   
-   // while(processCount != 0) { // loop until no more processes left to run
-   
+  
    char timeParam[5];
-   int cmdCount=2;
-   
-   // initially launch as many processes as there are processors
-   //for(int z=0; z < processorCount; z++) {
-   //if(argc-2 <= processorCount) {
-   
-    int jobsDone = 0;
-      for(int i=0; i < argc-2; i++) {
-     
-      
+   int cmdCount = 2;
+   int jobsDone = 0;
+
+   if(processorCount >= argc-2) {
+      for(int i=0; i < argc-2; i++) {    
+         sprintf(timeParam, " %s", argv[cmdCount]);
+            if( !CreateProcess("computeProgram_64.exe", timeParam, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[i].processInfo)) {
+                  printError("CreateProcess");
+                  
+               }
+            else { 
+                  printf("Process %d Started with pid = %d\n\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //jobsDone++;
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[i].running = 1;
+               }               
+                cmdCount++;
+             }
+          }
+          
+   else {
+      for(int i=0; i < processorCount; i++) {
          sprintf(timeParam, " %s", argv[cmdCount]);
             if( !CreateProcess("computeProgram_64.exe", timeParam, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
                          NULL, NULL, &startInfo, &processorPool[i].processInfo))
                {
-                  printError("CreateProcess");
-                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
-                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  printError("CreateProcess");               
                }
-            
             else 
                { 
                   printf("Process %d Started with pid = %d\n\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
                   jobsDone++;
                }
                
                 cmdCount++;
         }
-         int q = argc-2;
-         
-         while(q <= processorCount) {
-         
-         SetProcessAffinityMask(processorPool[q].processInfo.hProcess, processorPool[q].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
-         
-         ResumeThread(processorPool[q].processInfo.hThread); // Pass thread to Resume thread
-         processorPool[q].running = 1;
-         q++;
-         }
-         
-       
-      
+    }
       
        
    /* Repeatedly wait for a process to finish and then,
@@ -217,33 +182,36 @@ int main(int argc, char *argv[])
       int handleCount = 0;
       
       for(int k=0; k<processorCount; k++) {
+      printf("The processor at index %d is running = %d\n", k, processorPool[k].running);
       if(processorPool[k].running == 1) 
          {
             handleCount++;
          }
       }
-      printf("The handle count is: %d\n", handleCount);
+      printf("\nThe handle count is: %d\n", handleCount);
       
       handleArray = malloc(handleCount * sizeof(ProcessorData)); // argc-2 doesn't work
        
       int x = 0;
-      for(int i=0; i < handleCount; i++) {
+      for(int i=0; i < processorCount; i++) {
          if(processorPool[i].running == 1) 
             {
-            
-            handleArray[x] = processorPool[i].processInfo.hProcess;         
+            handleArray[x] = processorPool[i].processInfo.hProcess;    
+            //handleArray[x] = processorPool[i].processInfo.hThread;        
             x++;
          }
       }
       
-      /* check that there are still processes running, if not, quit */
+      
       for(int i=0; i<handleCount; i++) {
-      if(handleCount == 1) {
-      return 0;
-      }
-      printf("The value inside index: %d of the HANDLES array is %p \n",i, handleArray[i] );
+         printf("The int value inside index: %d of the HANDLES array is %d \n",i, (int)handleArray[i]);
+         //printf("The mem adress inside index: %d of the HANDLES array is %p \n",i, handleArray[i]);
       }
       
+      /* check that there are still processes running, if not, quit */
+      if(handleCount == 0) {
+         return 0;
+      }
       
       //int stillRunning = 0;
       
@@ -261,21 +229,29 @@ int main(int argc, char *argv[])
       //}
       
       /* wait for one of the running processes to end */
+      if(handleCount != 0) {
       if (WAIT_FAILED == (result = WaitForMultipleObjects(handleCount, handleArray, FALSE, INFINITE))) // return is the index of processHandles of completed job
          printError("WaitForMultipleObjects");
+         }
          
       printf("The index returned from WaitForMultipleObjects is: %d\n", (int)result);
 
       /* translate result from an index in processHandles[] to an index in processorPool[] */
-      for(int i=0; i<processorCount; i++) {
-      processorPool[(int)result].running = 0;
-      }
+      //for(int i=0; i<processorCount; i++) {
+      //processorPool[(int)result].running = 0;
+      //}
       
      
      
       /* close the handles of the finished process and update the processorPool array */
-      CloseHandle(processorPool[(int)result].processInfo.hThread);
-      CloseHandle(processorPool[(int)result].processInfo.hProcess);
+      CloseHandle(handleArray[(int)result]);
+      CloseHandle(handleArray[(int)result]);
+           
+      for(int i=0; i<processorCount; i++) {
+      if(handleArray[(int)result] == processorPool[i].processInfo.hProcess) {
+      processorPool[i].running = 0;
+      }
+      }
 
       /* check if there is another process to run on the processor that just became free */
       
