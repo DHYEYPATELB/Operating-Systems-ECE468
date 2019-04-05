@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     
    
    for(int i=0; i<timesNumSize; i++) {
-   printf("The value for arg %d is %d \n", i, timesNumArray[i]);
+   printf("The value for arg %d of the int SECONDS... array is %d \n", i, timesNumArray[i]);
    }
  
    /* get the processor affinity mask for this process */
