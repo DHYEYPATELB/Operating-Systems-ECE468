@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
    int processorCount = 0;       /* the number of allocated processors */
    ProcessorData *processorPool; /* an array of ProcessorData structures */
    HANDLE *handleArray;          /* an array of handles to processes */
+   //int processorNumber = 0;
    
    if (argc < 3)
    {
@@ -118,27 +119,31 @@ int main(int argc, char *argv[])
    
    /* start the first group of processes */
   
-   char timeParam[5];
+   char timeParamOut[256];
    int cmdCount = 2;
    int jobsDone = 0;
    
+   // FCFS
+   if(*argv[1] == '0') {
    // if processors available IS EQUAL OR GREATER THAN the SECONDS... arguments passed to command line
    if(processorCount >= argc-2) {
       for(int i=0; i < argc-2; i++) {    
-         sprintf(timeParam, " %s", argv[cmdCount]);
-            if( !CreateProcess("computeProgram_64.exe", timeParam, NULL, NULL, TRUE,
+         sprintf(timeParamOut, " %s", argv[cmdCount]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timeParamOut);
+            if( !CreateProcess("computeProgram_64.exe", timeParamOut, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
                          NULL, NULL, &startInfo, &processorPool[i].processInfo)) {
                   printError("CreateProcess");
                   
                }
             else { 
-                  printf("Process %d Started with pid = %d\n\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
                   //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
                   //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
                   SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
                   ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
                   processorPool[i].running = 1;
+                  printf("job %d just was launched\n\n",jobsDone);
                   jobsDone++;
                }               
                 cmdCount++;
@@ -148,8 +153,9 @@ int main(int argc, char *argv[])
    // if process available is LESS THAN the SECONDS... arguments passed to command line    
    else {
       for(int i=0; i < processorCount; i++) {
-         sprintf(timeParam, " %s", argv[cmdCount]);
-            if( !CreateProcess("computeProgram_64.exe", timeParam, NULL, NULL, TRUE,
+         sprintf(timeParamOut, " %s", argv[cmdCount]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timeParamOut);
+            if( !CreateProcess("computeProgram_64.exe", timeParamOut, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
                          NULL, NULL, &startInfo, &processorPool[i].processInfo))
                {
@@ -157,27 +163,37 @@ int main(int argc, char *argv[])
                }
             else 
                { 
-                  printf("Process %d Started with pid = %d\n\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
                   //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
                   //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure member 
                   SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
                   ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
                   processorPool[i].running = 1;
-                  printf("job %d just was launched\n",jobsDone);
+                  printf("job %d just was launched\n\n",jobsDone);
                   jobsDone++;
                }
          cmdCount++;
         }
     }
+    }
+    if(*argv[1] == '1') {
+    printf("You pressed 1\n");
+    }
+    if(*argv[1] == '2') {
+    printf("You pressed 2\n");
+    }
     
     printf("The current total jobs done before entering while loop is: %d\n",jobsDone);
     printf("There is/are still %d processes that need to run\n", (argc-2)-jobsDone);
+    
+    char timeParamIn[256];
          
    /* Repeatedly wait for a process to finish and then,
       if there are more jobs to run, run a new job on
       the processor that just became free. */
    while (1)
    {
+      
       DWORD result;
       printf("\nAt the top of while(1) loop!\n");
 
@@ -210,7 +226,8 @@ int main(int argc, char *argv[])
       }
       
       for(int i=0; i<handleCount; i++) {
-         printf("\nThe int value at index: %d of the HANDLES ARRAY is %d\n",i, (int)handleArray[i]);
+         //processorNumber = GetCurrentProcessorNumber();
+         printf("The int value at index: %d of the HANDLES ARRAY is %d running on CPU: \n",i, (int)handleArray[i]);
          //printf("The mem adress inside index: %d of the HANDLES array is %p \n",i, handleArray[i]);
       }
       
@@ -250,32 +267,39 @@ int main(int argc, char *argv[])
       /* close the handles of the finished process and update the processorPool array */
       CloseHandle(handleArray[(int)result]);
       CloseHandle(handleArray[(int)result]);
+      int handleToCPUIndex = 0;
            
+      // loop thru the processPool array and find the index of the handle that MATCHES the handle in the handle array that just finished. save that index into handleToCPUIndex
       for(int i=0; i<processorCount; i++) {
          if(handleArray[(int)result] == processorPool[i].processInfo.hProcess) {
             processorPool[i].running = 0;
+            handleToCPUIndex = i; 
          }
       }
+      
+      printf("\nThe CPU that finished in WRONG index: %d\n", handleToCPUIndex);
+      printf("The CPU that just finished it's job was really in index: %d\n", handleToCPUIndex);
 
       /* check if there is another process to run on the processor that just became free */
-      printf("jobsDone inside the while(1) loop is: %d\n", jobsDone);
+      printf("\njobsDone inside the while(1) loop is: %d\n", jobsDone);
       printf("argc-2 inside the while(1) loop is: %d\n", argc-2);
       printf("jobsDone+1 inside the while(1) loop is: %d\n",jobsDone+1);
       
       if(jobsDone < argc-2) {
-      sprintf(timeParam, " %s", argv[jobsDone+1]);
-         if( !CreateProcess("computeProgram_64.exe", timeParam, NULL, NULL, TRUE,
+      sprintf(timeParamIn, " %s", argv[jobsDone+2]); // must iterate +2 because of extra space in timeParamIn char array
+      printf("Argument passed to CreateProcess is: %s\n", timeParamIn);
+         if( !CreateProcess("computeProgram_64.exe", timeParamIn, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
-                         NULL, NULL, &startInfo, &processorPool[(int)result].processInfo))
+                         NULL, NULL, &startInfo, &processorPool[handleToCPUIndex].processInfo))
                {
                   printError("CreateProcess");               
                }
             else 
                { 
-                  printf("Process %d Started with pid = %d\n\n",jobsDone+1,(int)processorPool[(int)result].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
-                  SetProcessAffinityMask(processorPool[(int)result].processInfo.hProcess, processorPool[(int)result].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
-                  ResumeThread(processorPool[(int)result].processInfo.hThread); // Pass thread to Resume thread
-                  processorPool[(int)result].running = 1;
+                  printf("Process %d Started with pid = %d\n\n",jobsDone+1,(int)processorPool[handleToCPUIndex].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  SetProcessAffinityMask(processorPool[handleToCPUIndex].processInfo.hProcess, processorPool[handleToCPUIndex].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[handleToCPUIndex].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[handleToCPUIndex].running = 1;
                   //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
                   //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
                   jobsDone++;
