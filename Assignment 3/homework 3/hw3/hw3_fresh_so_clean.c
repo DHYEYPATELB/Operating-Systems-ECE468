@@ -13,6 +13,37 @@ typedef struct processor_data {
 /* function prototypes */
 void printError(char* functionName);
 
+// ascending order sort function for SJF
+int * sortSJF(int sjfArr[], int size) {
+
+
+int temp;
+int swapped;
+//int howMany = 10;
+
+while(1) {
+   swapped = 0;
+   
+   for(int i=0; i<size; i++) 
+   {
+      if(sjfArr[i] > sjfArr[i+1]) 
+      {
+         temp = sjfArr[i];
+         sjfArr[i] = sjfArr[i+1];
+         sjfArr[i+1] = temp;
+         swapped = 1;
+      }
+   }
+   
+    if(swapped==0) 
+      {
+      break;
+      }
+
+   }
+   return sjfArr;
+}
+
 int main(int argc, char *argv[])
 {
    int processorCount = 0;       /* the number of allocated processors */
@@ -35,6 +66,7 @@ int main(int argc, char *argv[])
    int timesIndex = 0;
    int timesNumSize = 0;
     
+   // convert argv of char[] to int[]
    for(int i = 2; i < argc; i++) {
    timesNumArray[timesIndex++] = atoi(argv[i]);
    timesNumSize++;
@@ -176,12 +208,63 @@ int main(int argc, char *argv[])
         }
     }
     }
+    
+    // SJF
     if(*argv[1] == '1') {
-    printf("You pressed 1\n");
-    }
-    if(*argv[1] == '2') {
-    printf("You pressed 2\n");
-    }
+      //int cmdCountSJF = 0;
+      //char tempSTR[128];
+      //char timesSJF[256];
+      
+      char sjfCharArr[256];
+      //char *sjfCharArr;
+      //sjfCharArr = malloc(timesNumSize * sizeof(int));
+      int testSize = 0;
+      
+      printf("\nYou pressed 1\n");
+      //int sjfArr[timesNumSize];
+      
+      int * sjfIntArr;
+      
+      sjfIntArr = sortSJF(timesNumArray, timesNumSize);
+         
+         //testing int array ouptut
+         for(int i=0; i<timesNumSize; i++) {
+            printf("%d",sjfIntArr[i]);
+            testSize++;
+         }
+         
+         printf("\nNew size is: %d", testSize);
+         int index = 0;
+         
+         // copy newly sorted SJF int array to char array for CreateProcess()
+         for(int i=0; i<timesNumSize; i++) {
+            index += sprintf(&sjfCharArr[index], "%d", sjfIntArr[i]);
+            //printf(buffer);
+           //sjfCharArr[i] = itoa(sjfIntArr[i]);
+        }
+         printf("\n");
+         
+         //itoa(sjfIntArr);
+         
+         //testing char array output 
+         //for(int i=0; i < timesNumSize; i++) {
+            //printf("%s \n",sjfCharArr[i]); // gives error when adding i
+         //}
+         
+         printf(sjfCharArr);
+         
+      // insert processes code block here
+      
+   }
+         
+         
+         
+         
+         
+    // LJF
+         if(*argv[1] == '2') {
+            printf("You pressed 2\n");
+      }
     
     printf("The current total jobs done before entering while loop is: %d\n",jobsDone);
     printf("There is/are still %d processes that need to run\n", (argc-2)-jobsDone);
@@ -287,7 +370,7 @@ int main(int argc, char *argv[])
       printf("jobsDone+2 inside the while(1) loop is: %d\n",jobsDone+2);
       
       if(jobsDone < argc-2) {
-      sprintf(timeParamIn, " %s", argv[jobsDone+2]); // must iterate +2 because of extra space in timeParamIn char array
+      sprintf(timeParamIn, " %s", argv[jobsDone+2]); // must iterate +2
       printf("Argument passed to CreateProcess is: %s\n", timeParamIn);
          if( !CreateProcess("computeProgram_64.exe", timeParamIn, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
