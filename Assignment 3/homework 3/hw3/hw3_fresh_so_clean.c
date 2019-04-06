@@ -284,6 +284,7 @@ int main(int argc, char *argv[])
       printf("\njobsDone inside the while(1) loop is: %d\n", jobsDone);
       printf("argc-2 inside the while(1) loop is: %d\n", argc-2);
       printf("jobsDone+1 inside the while(1) loop is: %d\n",jobsDone+1);
+      printf("jobsDone+2 inside the while(1) loop is: %d\n",jobsDone+2);
       
       if(jobsDone < argc-2) {
       sprintf(timeParamIn, " %s", argv[jobsDone+2]); // must iterate +2 because of extra space in timeParamIn char array
