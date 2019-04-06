@@ -15,34 +15,58 @@ void printError(char* functionName);
 
 // ascending order sort function for SJF
 int * sortSJF(int sjfArr[], int size) {
+   int temp;
+   int swapped;
 
-
-int temp;
-int swapped;
-//int howMany = 10;
-
-while(1) {
-   swapped = 0;
+   while(1) {
+      swapped = 0;
    
-   for(int i=0; i<size; i++) 
-   {
-      if(sjfArr[i] > sjfArr[i+1]) 
-      {
-         temp = sjfArr[i];
-         sjfArr[i] = sjfArr[i+1];
-         sjfArr[i+1] = temp;
-         swapped = 1;
+      for(int i=0; i<size; i++) 
+         {
+         if(sjfArr[i] > sjfArr[i+1]) 
+         {
+            temp = sjfArr[i];
+            sjfArr[i] = sjfArr[i+1];
+            sjfArr[i+1] = temp;
+            swapped = 1;
+         }
       }
-   }
    
-    if(swapped==0) 
-      {
-      break;
+      if(swapped==0) 
+         {
+            break;
+         }
       }
-
-   }
    return sjfArr;
 }
+
+// descending order sort function for LJF
+int * sortLJF(int ljfArr[], int size) {
+   int temp;
+   int swapped;
+
+   while(1) {
+      swapped = 0;
+   
+      for(int i=0; i<size; i++) 
+         {
+         if(ljfArr[i] < ljfArr[i+1]) 
+         {
+            temp = ljfArr[i];
+            ljfArr[i] = ljfArr[i+1];
+            ljfArr[i+1] = temp;
+            swapped = 1;
+         }
+      }
+   
+      if(swapped==0) 
+         {
+            break;
+         }
+      }
+   return ljfArr;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -79,7 +103,18 @@ int main(int argc, char *argv[])
    for(int i=0; i<timesNumSize; i++) {
    printf("The value for arg %d of the int SECONDS... array is %d \n", i, timesNumArray[i]);
    }
+   
+   // get sorted SJF int array
+   int * sjfIntArr;
+   sjfIntArr = sortSJF(timesNumArray, timesNumSize);
+   char timesSJF[256];
+   
+   // get sorted LJF int array
+   int * ljfIntArr;
+   ljfIntArr = sortLJF(timesNumArray, timesNumSize);
+   char timesLJF[256];
  
+   
    /* get the processor affinity mask for this process */
    DWORD_PTR lpProcessAffinityMask = 0;
    DWORD_PTR lpSystemAffinityMask = 0;
@@ -155,7 +190,7 @@ int main(int argc, char *argv[])
    int cmdCount = 2;
    int jobsDone = 0;
    
-   // FCFS
+   // ************************** FCFS == '0' *********************************
    if(*argv[1] == '0') {
    // if processors available IS EQUAL OR GREATER THAN the SECONDS... arguments passed to command line
    if(processorCount >= argc-2) {
@@ -206,42 +241,42 @@ int main(int argc, char *argv[])
                }
          cmdCount++;
         }
-    }
-    }
+      }
+    } // end FCFS if block
     
-    // SJF
+    // ************************** SJF == '1' *********************************
     if(*argv[1] == '1') {
-      //int cmdCountSJF = 0;
+      int cmdCountSJF = 1;
       //char tempSTR[128];
-      //char timesSJF[256];
-      
-      char sjfCharArr[256];
       //char *sjfCharArr;
       //sjfCharArr = malloc(timesNumSize * sizeof(int));
+      
+      //char sjfCharArr[256];
+      
+      
       int testSize = 0;
       
       printf("\nYou pressed 1\n");
-      //int sjfArr[timesNumSize];
       
-      int * sjfIntArr;
+      //int sjfIntArr[timesNumSize];
       
-      sjfIntArr = sortSJF(timesNumArray, timesNumSize);
          
-         //testing int array ouptut
-         for(int i=0; i<timesNumSize; i++) {
-            printf("%d",sjfIntArr[i]);
+         //testing int SJF array output
+         printf("The new SJF sorted array is:\n");
+         for(int i=1; i<timesNumSize+1; i++) {
+            printf(" %d ",sjfIntArr[i]);
             testSize++;
          }
          
-         printf("\nNew size is: %d", testSize);
-         int index = 0;
+         //printf("\nNew size is: %d\n", testSize);
+         //int index = 0;
          
          // copy newly sorted SJF int array to char array for CreateProcess()
-         for(int i=0; i<timesNumSize; i++) {
-            index += sprintf(&sjfCharArr[index], "%d", sjfIntArr[i]);
+         //for(int i=0; i<timesNumSize; i++) {
+            //index += sprintf(&sjfCharArr[index], "%d", sjfIntArr[i]);
             //printf(buffer);
            //sjfCharArr[i] = itoa(sjfIntArr[i]);
-        }
+        //}
          printf("\n");
          
          //itoa(sjfIntArr);
@@ -251,20 +286,130 @@ int main(int argc, char *argv[])
             //printf("%s \n",sjfCharArr[i]); // gives error when adding i
          //}
          
-         printf(sjfCharArr);
+         //printf(sjfCharArr);
+        
+         // if processors available IS EQUAL OR GREATER THAN the SECONDS... arguments passed to command line
+   if(processorCount >= argc-2) {
+      for(int i=0; i < timesNumSize; i++) {    
+         sprintf(timesSJF, " %d", sjfIntArr[cmdCountSJF]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timesSJF);
+            if( !CreateProcess("computeProgram_64.exe", timesSJF, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[i].processInfo)) {
+                  printError("CreateProcess");
+                  
+               }
+            else { 
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[i].running = 1;
+                  printf("job %d just was launched\n\n",jobsDone);
+                  jobsDone++;
+               }               
+                cmdCountSJF++;
+             }
+          }
          
-      // insert processes code block here
-      
-   }
+         // if process available is LESS THAN the SECONDS... arguments passed to command line    
+   else {
+      for(int i=0; i < processorCount; i++) {
+         sprintf(timesSJF, " %d", sjfIntArr[cmdCountSJF]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timesSJF);
+            if( !CreateProcess("computeProgram_64.exe", timesSJF, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[i].processInfo))
+               {
+                  printError("CreateProcess");               
+               }
+            else 
+               { 
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure member 
+                  SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[i].running = 1;
+                  printf("job %d just was launched\n\n",jobsDone);
+                  jobsDone++;
+               }
+          cmdCountSJF++;
+        }
+    }  
+   } // end SJF if block
          
          
          
          
          
-    // LJF
+    // ************************** LJF == '1' *********************************
          if(*argv[1] == '2') {
             printf("You pressed 2\n");
-      }
+            
+            int cmdCountLJF = 1;
+            int testSize = 0;
+            
+            //testing int SJF array output
+            printf("The new LJF sorted array is:\n");
+            for(int i=1; i<timesNumSize+1; i++) {
+            printf(" %d ",ljfIntArr[i]);
+            testSize++;
+         }
+            printf("\n");
+            
+          // if processors available IS EQUAL OR GREATER THAN the SECONDS... arguments passed to command line
+   if(processorCount >= argc-2) {
+      for(int i=0; i < timesNumSize; i++) {    
+         sprintf(timesLJF, " %d", ljfIntArr[cmdCountLJF]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timesLJF);
+            if( !CreateProcess("computeProgram_64.exe", timesLJF, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[i].processInfo)) {
+                  printError("CreateProcess");
+                  
+               }
+            else { 
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[i].running = 1;
+                  printf("job %d just was launched\n\n",jobsDone);
+                  jobsDone++;
+               }               
+                cmdCountLJF++;
+             }
+          }
+         
+         // if process available is LESS THAN the SECONDS... arguments passed to command line    
+   else {
+      for(int i=0; i < processorCount; i++) {
+         sprintf(timesLJF, " %d", ljfIntArr[cmdCountLJF]);
+         printf("Argument %d passed to CreateProcess is: %s", i,timesLJF);
+            if( !CreateProcess("computeProgram_64.exe", timesLJF, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[i].processInfo))
+               {
+                  printError("CreateProcess");               
+               }
+            else 
+               { 
+                  printf("\nProcess %d Started with pid = %d\n",i+1,(int)processorPool[i].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure member 
+                  SetProcessAffinityMask(processorPool[i].processInfo.hProcess, processorPool[i].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[i].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[i].running = 1;
+                  printf("job %d just was launched\n\n",jobsDone);
+                  jobsDone++;
+               }
+          cmdCountLJF++;
+        }
+      }          
+   } // end LJF if block
     
     printf("The current total jobs done before entering while loop is: %d\n",jobsDone);
     printf("There is/are still %d processes that need to run\n", (argc-2)-jobsDone);
@@ -370,9 +515,35 @@ int main(int argc, char *argv[])
       printf("jobsDone+2 inside the while(1) loop is: %d\n",jobsDone+2);
       
       if(jobsDone < argc-2) {
+      
+      if(*argv[1] == '0') {
       sprintf(timeParamIn, " %s", argv[jobsDone+2]); // must iterate +2
-      printf("Argument passed to CreateProcess is: %s\n", timeParamIn);
-         if( !CreateProcess("computeProgram_64.exe", timeParamIn, NULL, NULL, TRUE,
+      printf("\nArgument passed to CreateProcess is: %s\n", timeParamIn);
+      
+      if( !CreateProcess("computeProgram_64.exe", timeParamIn, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[handleToCPUIndex].processInfo))
+               {
+                  printError("CreateProcess");               
+               }
+            else 
+               { 
+                  printf("Process %d Started with pid = %d\n\n",jobsDone+1,(int)processorPool[handleToCPUIndex].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  SetProcessAffinityMask(processorPool[handleToCPUIndex].processInfo.hProcess, processorPool[handleToCPUIndex].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[handleToCPUIndex].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[handleToCPUIndex].running = 1;
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  jobsDone++;
+               }
+      
+      }
+      
+      else if(*argv[1] == '1') {
+      sprintf(timesSJF, " %d", sjfIntArr[jobsDone+1]); // must iterate +1
+      printf("\nArgument passed to CreateProcess is: %s\n", timesSJF);
+      
+      if( !CreateProcess("computeProgram_64.exe", timesSJF, NULL, NULL, TRUE,
                          NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
                          NULL, NULL, &startInfo, &processorPool[handleToCPUIndex].processInfo))
                {
@@ -389,6 +560,30 @@ int main(int argc, char *argv[])
                   jobsDone++;
                }
       }
+      
+      else if(*argv[1] == '2') {
+      sprintf(timesLJF, " %d", ljfIntArr[jobsDone+1]); // must iterate +1
+      printf("\nArgument passed to CreateProcess is: %s\n", timesLJF);
+      
+      if( !CreateProcess("computeProgram_64.exe", timesLJF, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | 0x00000004,
+                         NULL, NULL, &startInfo, &processorPool[handleToCPUIndex].processInfo))
+               {
+                  printError("CreateProcess");               
+               }
+            else 
+               { 
+                  printf("Process %d Started with pid = %d\n\n",jobsDone+1,(int)processorPool[handleToCPUIndex].processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  SetProcessAffinityMask(processorPool[handleToCPUIndex].processInfo.hProcess, processorPool[handleToCPUIndex].affinityMask); // Pass the HANDLE of newly created process and affinityMask from data structure to SetProcessAffinityMask function
+                  ResumeThread(processorPool[handleToCPUIndex].processInfo.hThread); // Pass thread to Resume thread
+                  processorPool[handleToCPUIndex].running = 1;
+                  //processorPool[i].processInfo.hProcess = GetCurrentProcess(); // store the process handle into the data structure memeber 
+                  //processorPool[z].processInfo.dwProcessId = GetCurrentProcessId(); // store the process handle into the data structure memeber 
+                  jobsDone++;
+               }
+         }
+         
+      } // end main if block
       
    }
    return 0; 
