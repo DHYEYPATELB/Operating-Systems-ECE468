@@ -67,17 +67,51 @@ void printError(char* functionName);
 
 int main(int argc, char *argv[])
 {
-   int time, vmOp, units, access;
-   LPVOID vmAddress;
+   int time;         // parameter 1
+   int vmOp;         // parameter 2
+   int units;        // parameter 3
+   int access;       // parameter 4
+   LPVOID vmAddress; // parameter 5
 
    // You need to provide the code that starts up the
    // VMmapper.exe program with the PID of this program
    // on the command line. Use the Windows function
    // GetCurrentProcessId() to get this program's PID at
    // runtime.
+   PROCESS_INFORMATION processInfo;
+   
+   STARTUPINFO startInfo;
+   ZeroMemory(&startInfo, sizeof(startInfo));
+   startInfo.cb = sizeof(startInfo);
+   
+   SYSTEM_INFO lpSystemInfo;
+   
+   // To get the current page size
+   GetSystemInfo(&lpSystemInfo);
+   printf("The page size is: %d\n" ,lpSystemInfo.dwPageSize);
+  
+   DWORD cmdLine = GetCurrentProcessId(); // gets this program's PID at runtime
+   printf("VMdriver's pid is = %d", cmdLine); // display the PID of VMdriver
+   
+   //DWORD_PTR MEM_RESERVE = 0x2000;
+    
+   char currProcPID[256];
+   char *progName = "VMMapper.exe";
+   
+   sprintf(currProcPID, " %d", cmdLine);
+   if( !CreateProcess(progName, currProcPID, NULL, NULL, TRUE,
+                         NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE,
+                         NULL, NULL, &startInfo, &processInfo)) {
+                  printError("CreateProcess");
+                  
+               }
+            else { 
+                  printf("\n%s Started with pid = %d\n",progName,(int)processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+               }               
 
    Sleep(5000);  // give VMmapper.exe time to start
-
+   
+ 
    // Process loop
    printf("next VM command: ");
    while(scanf("%d%d%p%d%d", &time, &vmOp, &vmAddress, &units, &access) != EOF)
@@ -85,32 +119,51 @@ int main(int argc, char *argv[])
       // wait until it is time to execute the command
       Sleep(time*1000);
 
+   if(access == 1) {
+      access = 0x02; // page_readonly
+   }
+   if(access == 2) { 
+      access = 0x04; // page_readwrite
+   }
+   if(access == 3) {
+      access = 0x10; // page_execute
+   }
+   if(access == 4) { 
+      access = 0x20; // page_execute_read
+   }
+   if(access == 5) {
+      access = 0x40; // page_execute_readwrite
+   }
+   if(access == 6) {
+      access = 0x01; // page_no_access
+   }
+      
       // Parse the command and execute it
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            // provide the code that does this operation
+            VirtualAlloc(vmAddress, units, MEM_RESERVE, access);
             break;
          case 2:  // Commit a block of pages
-            // provide the code that does this operation
+            VirtualAlloc(vmAddress, units, MEM_COMMIT, access);
             break;
          case 3:  // Touch pages in a block
             // provide the code that does this operation
             break;
          case 4:  // Lock a block of pages
-            // provide the code that does this operation
+            VirtualLock(vmAddress, units);
             break;
          case 5:  // Unlock a block of pages
-            // provide the code that does this operation
+            VirtualUnlock(vmAddress, units);
             break;
          case 6:  // Create a guard page
             // provide the code that does this operation
             break;
          case 7:  // Decommit a block of pages
-            // provide the code that does this operation
+            VirtualFree(vmAddress, units, MEM_DECOMMIT);
             break;
          case 8:  // Release a region
-            // provide the code that does this operation
+            VirtualFree(vmAddress, units, MEM_RELEASE);
             break;
       }//switch
       printf("Processed %d %d 0x%p %d %d\n", time, vmOp, vmAddress, units, access);
