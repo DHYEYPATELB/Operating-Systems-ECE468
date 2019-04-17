@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
    ZeroMemory(&startInfo, sizeof(startInfo));
    startInfo.cb = sizeof(startInfo);
    
-   SYSTEM_INFO lpSystemInfo;
+   //SYSTEM_INFO lpSystemInfo;
    
    // To get the current page size
-   GetSystemInfo(&lpSystemInfo);
-   printf("The page size is: %d\n" ,lpSystemInfo.dwPageSize);
+   //GetSystemInfo(&lpSystemInfo);
+   //printf("The page size is: %d\n" ,lpSystemInfo.dwPageSize);
   
    DWORD cmdLine = GetCurrentProcessId(); // gets this program's PID at runtime
    printf("VMdriver's pid is = %d", cmdLine); // display the PID of VMdriver
@@ -111,38 +111,43 @@ int main(int argc, char *argv[])
 
    Sleep(5000);  // give VMmapper.exe time to start
    
- 
+   
+   
    // Process loop
    printf("next VM command: ");
    while(scanf("%d%d%p%d%d", &time, &vmOp, &vmAddress, &units, &access) != EOF)
    {
       // wait until it is time to execute the command
       Sleep(time*1000);
-
-   if(access == 1) {
-      access = 0x02; // page_readonly
-   }
-   if(access == 2) { 
-      access = 0x04; // page_readwrite
-   }
-   if(access == 3) {
-      access = 0x10; // page_execute
-   }
-   if(access == 4) { 
-      access = 0x20; // page_execute_read
-   }
-   if(access == 5) {
-      access = 0x40; // page_execute_readwrite
-   }
-   if(access == 6) {
-      access = 0x01; // page_no_access
-   }
+      
+   //DWORD hey = 0;
+     
+   //if(access == 1) {
+   //hey = 0x02; // page_readonly
+   //}
+   //if(access == 2) { 
+      //access = 0x04; // page_readwrite
+   //}
+   //if(access == 3) {
+     // access = 0x10; // page_execute
+   //}
+   //if(access == 4) { 
+      //access = 0x20; // page_execute_read
+   //}
+   //if(access == 5) {
+     // access = 0x40; // page_execute_readwrite
+   //}
+   //if(access == 6) {
+      //access = 0x01; // page_no_access
+   //}
+   
+   
       
       // Parse the command and execute it
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            VirtualAlloc(vmAddress, units, MEM_RESERVE, access);
+            VirtualAlloc(vmAddress, units, MEM_RESERVE,0x02);
             break;
          case 2:  // Commit a block of pages
             VirtualAlloc(vmAddress, units, MEM_COMMIT, access);
