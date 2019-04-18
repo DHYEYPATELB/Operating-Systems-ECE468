@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            VirtualAlloc(vmAddress, units, MEM_RESERVE,0x02);
+            VirtualAlloc(vmAddress, units, MEM_RESERVE, PAGE_READONLY); // only works with PAGE_READONLY
             break;
          case 2:  // Commit a block of pages
             VirtualAlloc(vmAddress, units, MEM_COMMIT, access);
