@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
    HANDLE myProcess = GetCurrentProcess(); // a process uses this to get a handle to itself
    
    BOOL res = GetProcessAffinityMask(myProcess, &lpProcessAffinityMask, &lpSystemAffinityMask);
+   
    printf("%d 0x%X\n",res,lpProcessAffinityMask);
    printf("\n");
    printf("The GetProcessAffinityMask() returns a boolean value of: %d\n", res);

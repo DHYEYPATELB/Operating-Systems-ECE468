@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
    int processorCount = 0;       /* the number of allocated processors */
    ProcessorData *processorPool; /* an array of ProcessorData structures */
    HANDLE *handleArray;          /* an array of handles to processes */
-   //int processorNumber = 0;
    
    if (argc < 3)
    {

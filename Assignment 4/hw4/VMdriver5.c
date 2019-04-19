@@ -124,26 +124,26 @@ int main(int argc, char *argv[])
       // wait until it is time to execute the command
       Sleep(time*1000);
       
-   //DWORD hey = 0;
+   DWORD flProtect;
      
-   //if(access == 1) {
-   //hey = 0x02; // page_readonly
-   //}
-   //if(access == 2) { 
-      //access = 0x04; // page_readwrite
-   //}
-   //if(access == 3) {
-     // access = 0x10; // page_execute
-   //}
-   //if(access == 4) { 
-      //access = 0x20; // page_execute_read
-   //}
-   //if(access == 5) {
-     // access = 0x40; // page_execute_readwrite
-   //}
-   //if(access == 6) {
+   if(access == 1) {
+   flProtect = 0x02; // page_readonly
+   }
+   if(access == 2) { 
+      flProtect = 0x04; // page_readwrite
+   }
+   if(access == 3) {
+     flProtect = 0x10; // page_execute
+   }
+   if(access == 4) { 
+      flProtect = 0x20; // page_execute_read
+   }
+   if(access == 5) {
+     flProtect = 0x40; // page_execute_readwrite
+   }
+   if(access == 6) {
       //access = 0x01; // page_no_access
-   //}
+   }
    
    
    
@@ -151,11 +151,11 @@ int main(int argc, char *argv[])
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            reserveBytes = 0x10000;
-            VirtualAlloc(vmAddress, reserveBytes, MEM_RESERVE, PAGE_READONLY); // only works with PAGE_READONLY
+            reserveBytes = 0x10000; // sets bytes to 65536 for reserve
+            VirtualAlloc(vmAddress, reserveBytes, MEM_RESERVE, flProtect); // only works with PAGE_READONLY
             break;
          case 2:  // Commit a block of pages
-            VirtualAlloc(vmAddress, units, MEM_COMMIT, access);
+            VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
             break;
          case 3:  // Touch pages in a block
             // provide the code that does this operation
@@ -170,10 +170,10 @@ int main(int argc, char *argv[])
             // provide the code that does this operation
             break;
          case 7:  // Decommit a block of pages
-            VirtualFree(vmAddress, units, MEM_DECOMMIT);
+            VirtualFree(vmAddress, units, MEM_DECOMMIT); // MEM_DECOMMIT
             break;
          case 8:  // Release a region
-            VirtualFree(vmAddress, units, MEM_RELEASE);
+            VirtualFree(vmAddress, units, MEM_RELEASE); // MEM_RELEASE
             break;
       }//switch
       printf("Processed %d %d 0x%p %d %d\n", time, vmOp, vmAddress, units, access);
