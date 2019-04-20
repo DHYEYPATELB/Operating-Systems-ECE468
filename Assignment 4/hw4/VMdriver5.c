@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
    SYSTEM_INFO lpSystemInfo;
    DWORD dwPageSize;
    SIZE_T reserveBytes;
+   SIZE_T releaseBytes;
    
    // To get the current page size
    GetSystemInfo(&lpSystemInfo);
@@ -99,7 +100,7 @@ int main(int argc, char *argv[])
    
    //DWORD_PTR MEM_RESERVE = 0x2000;
     
-   char currProcPID[100];
+   char currProcPID[256];
    //char *progName = "VMMapper.exe";
    
    sprintf(currProcPID, " %d", cmdLine);
@@ -145,8 +146,6 @@ int main(int argc, char *argv[])
       //access = 0x01; // page_no_access
    }
    
-   
-   
       // Parse the command and execute it
       switch (vmOp)
       {
@@ -173,7 +172,8 @@ int main(int argc, char *argv[])
             VirtualFree(vmAddress, units, MEM_DECOMMIT); // MEM_DECOMMIT
             break;
          case 8:  // Release a region
-            VirtualFree(vmAddress, units, MEM_RELEASE); // MEM_RELEASE
+            releaseBytes = 0x10000; // sets bytes to 65536 to release
+            VirtualFree(vmAddress, releaseBytes, MEM_RELEASE); // MEM_RELEASE
             break;
       }//switch
       printf("Processed %d %d 0x%p %d %d\n", time, vmOp, vmAddress, units, access);
