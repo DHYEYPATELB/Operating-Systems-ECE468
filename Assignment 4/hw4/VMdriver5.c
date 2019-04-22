@@ -39,7 +39,7 @@
      3 - PAGE_EXECUTE
      4 - PAGE_EXECUTE_READ
      5 - PAGE_EXECUTE_READWRITE
-     6 - PAGE_NOACCESS
+     6 - PAGE_NOACCESS // cannot be used with PAGE_GUARD
 
      Most of the commands are described in the file
         "Virtual Memory from 'Beginning Windows NT Programming' by Julian Templeman.pdf".
@@ -84,19 +84,21 @@ int main(int argc, char *argv[])
    ZeroMemory(&startInfo, sizeof(startInfo));
    startInfo.cb = sizeof(startInfo);
    
-   SYSTEM_INFO lpSystemInfo;
+   SYSTEM_INFO lpSystemInfo; // useful information about system
+   LPVOID lpvAddr;
+   BOOL bLocked;
    DWORD dwPageSize;
    SIZE_T reserveBytes;
    SIZE_T releaseBytes;
+   DWORD flProtect;
    
    // To get the current page size
    GetSystemInfo(&lpSystemInfo);
    //lpSystemInfo.dwPageSize = 4096*16;
    printf("The page size is: %d\n" ,lpSystemInfo.dwPageSize);
   
-  
    DWORD cmdLine = GetCurrentProcessId(); // gets this program's PID at runtime
-   printf("VMdriver's pid is = %d", cmdLine); // display the PID of VMdriver
+   printf("\nVMdriver's pid is = %d\n", cmdLine); // display the PID of VMdriver
    
    //DWORD_PTR MEM_RESERVE = 0x2000;
     
@@ -111,22 +113,18 @@ int main(int argc, char *argv[])
                   
                }
             else { 
-                  printf("\n Started with pid = %d\n",(int)processInfo.dwProcessId); // dwProcessId is the PID of newly created process
+                  printf("Started with pid = %d\n",(int)processInfo.dwProcessId); // dwProcessId is the PID of newly created process
                }               
 
    Sleep(1000);  // give VMmapper.exe time to start
    
-   
-   
    // Process loop
-   printf("next VM command: ");
+   printf("\nnext VM command: ");
    while(scanf("%d%d%p%d%d", &time, &vmOp, &vmAddress, &units, &access) != EOF)
    {
       // wait until it is time to execute the command
       Sleep(time*1000);
       
-   DWORD flProtect;
-     
    if(access == 1) {
    flProtect = 0x02; // page_readonly
    }
@@ -143,15 +141,21 @@ int main(int argc, char *argv[])
      flProtect = 0x40; // page_execute_readwrite
    }
    if(access == 6) {
-      //access = 0x01; // page_no_access
+      access = 0x01; // page_no_access
    }
    
       // Parse the command and execute it
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            reserveBytes = 0x10000; // sets bytes to 65536 for reserve
-            VirtualAlloc(vmAddress, reserveBytes, MEM_RESERVE, flProtect); // only works with PAGE_READONLY
+            //reserveBytes = 0x10000; // sets bytes to 65536 for reserve
+            lpvAddr = VirtualAlloc(vmAddress, units << 16, MEM_RESERVE, flProtect); // only works with PAGE_READONLY
+            if(lpvAddr == NULL) {
+               printf("Case 1: Reserve a region, VirtualAlloc() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Committed %lu bytes at address 0x%lp\n",dwPageSize, lpvAddr); // %lu = long unsigned decimal integer
+            }
             break;
          case 2:  // Commit a block of pages
             VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
@@ -166,7 +170,13 @@ int main(int argc, char *argv[])
             VirtualUnlock(vmAddress, units);
             break;
          case 6:  // Create a guard page
-            // provide the code that does this operation
+            lpvAddr = VirtualAlloc(NULL, units, MEM_RESERVE | MEM_COMMIT , PAGE_READONLY | PAGE_GUARD); // flProtect cannot be PAGE_NOACCESS for guard page
+            if(lpvAddr == NULL) {
+            printf("VirtualAlloc failed. Error: %ld\n", GetLastError());
+            } 
+            else {
+               printf("Committed %lu bytes at address 0x%lp\n", dwPageSize, lpvAddr);
+             }
             break;
          case 7:  // Decommit a block of pages
             VirtualFree(vmAddress, units, MEM_DECOMMIT); // MEM_DECOMMIT
@@ -177,7 +187,7 @@ int main(int argc, char *argv[])
             break;
       }//switch
       printf("Processed %d %d 0x%p %d %d\n", time, vmOp, vmAddress, units, access);
-      printf("next VM command: ");
+      printf("\nnext VM command: ");
    }//while
 
    while (1) Sleep(1000); // spin until killed
