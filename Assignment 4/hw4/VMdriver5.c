@@ -86,6 +86,8 @@ int main(int argc, char *argv[])
    
    SYSTEM_INFO lpSystemInfo; // useful information about system
    LPVOID lpvAddr;
+   BOOL success;
+   
    BOOL bLocked;
    DWORD dwPageSize;
    SIZE_T reserveBytes;
@@ -123,8 +125,10 @@ int main(int argc, char *argv[])
    while(scanf("%d%d%p%d%d", &time, &vmOp, &vmAddress, &units, &access) != EOF)
    {
       // wait until it is time to execute the command
-      Sleep(time*1000);
-      
+      Sleep(time*1000); // changes to 1ms because otherwise was too long of a wait
+   
+
+   // if block that determines flProtect value for interger that is input in argv command line
    if(access == 1) {
    flProtect = 0x02; // page_readonly
    }
@@ -154,39 +158,69 @@ int main(int argc, char *argv[])
                printf("Case 1: Reserve a region, VirtualAlloc() failed. Error: %ld\n", GetLastError());
             }
             else {
-               printf("Committed %lu bytes at address 0x%lp\n",dwPageSize, lpvAddr); // %lu = long unsigned decimal integer
+               printf("Reserved a region of %d bytes at address 0x%lp\n", units << 16, lpvAddr); 
             }
             break;
          case 2:  // Commit a block of pages
-            VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
+            lpvAddr = VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
+            if(lpvAddr == NULL) {
+               printf("Case 2: Commit a block of pages, VirtualAlloc() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Committed a block of %d bytes at address 0x%lp\n",units << 12, lpvAddr);
+            }
             break;
          case 3:  // Touch pages in a block
-            // We are looping through the base address we input (vmAddress) and touching each 4096 byte block (page size) until < units, so if units was 2, we would touch 2 pages of size 4096 bytes each at the given vmAdress as our base address that we start   the loop
+            // We are looping through the base address we input (vmAddress) and touching each 4096 byte block (page size) until < units, so if units was 2, we would touch 2 pages of size 4096 bytes each at the given vmAdress as our base address that we start    the loop
              for (int k=0; k<units; k++) {
-                    printf("Touched page = %d at memory address: 0x%X. The Base memory address is 0x%X with offset = %d bytes\n",k,vmAddress+4096*k,vmAddress,4096*k);
+                    printf("Touched page = %d at memory address: 0x%p. The Base memory address is 0x%p with offset = %d bytes\n",k,(char*)vmAddress+4096*k,(char*)vmAddress,4096*k);
                 }
             break;
          case 4:  // Lock a block of pages
-            VirtualLock(vmAddress, units);
+             success = VirtualLock(vmAddress, units);
+             if(success == 0) {
+               printf("Case 4: Lock a block of pages, VirtualLock() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Locked %d bytes at address 0x%lp\n",units << 12, lpvAddr);
+            }
             break;
          case 5:  // Unlock a block of pages
-            VirtualUnlock(vmAddress, units);
+            success = VirtualUnlock(vmAddress, units);
+             if(success == 0) {
+               printf("Case 5: Unlock a block of pages, VirtualUnlock() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Unlocked %d bytes at address 0x%lp\n",units << 12, lpvAddr);
+            }
             break;
          case 6:  // Create a guard page
             lpvAddr = VirtualAlloc(NULL, units, MEM_RESERVE | MEM_COMMIT , PAGE_READONLY | PAGE_GUARD); // flProtect cannot be PAGE_NOACCESS for guard page
             if(lpvAddr == NULL) {
-            printf("VirtualAlloc failed. Error: %ld\n", GetLastError());
+            printf("Case 6: Create a guard page, VirtualAlloc() failed. Error: %ld\n", GetLastError());
             } 
             else {
-               printf("Committed %lu bytes at address 0x%lp\n", dwPageSize, lpvAddr);
+               printf("Created a guard page of %lu bytes at address 0x%lp\n", dwPageSize, lpvAddr);
              }
             break;
-         case 7:  // Decommit a block of pages
-            VirtualFree(vmAddress, units, MEM_DECOMMIT); // MEM_DECOMMIT
+         case 7:  // Decommit a block of pages. VirtualFree() fails if return of function is equal to 0
+            success = VirtualFree(vmAddress, units, MEM_DECOMMIT); // MEM_DECOMMIT
+             if(success == 0) {
+               printf("Case 7: Decommit a block of pages, VirtualFree() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Decommitted a block of %d bytes at address 0x%lp\n",units << 12, lpvAddr);
+            }
             break;
          case 8:  // Release a region
             releaseBytes = 0x10000; // sets bytes to 65536 to release
-            VirtualFree(vmAddress, releaseBytes, MEM_RELEASE); // MEM_RELEASE
+            success = VirtualFree(vmAddress, releaseBytes, MEM_RELEASE); // MEM_RELEASE
+             if(success == 0) {
+               printf("Case 8: Release a region, VirtualFree() failed. Error: %ld\n", GetLastError());
+            }
+            else {
+               printf("Released a region of %d bytes at address 0x%lp\n",units << 16, lpvAddr);
+            }
             break;
       }//switch
       printf("Processed %d %d 0x%p %d %d\n", time, vmOp, vmAddress, units, access);
