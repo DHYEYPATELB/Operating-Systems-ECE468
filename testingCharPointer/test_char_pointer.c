@@ -15,5 +15,18 @@ count++;
 
 printf("The length of the sting is: %d\n", count);
 
-return 0;
+printf("------------------------------------------------\n");
+
+//int units = 4096;
+int units = 3;
+//int units = 0x10000;
+int vmAddress = 0x185000; // 503808 free
+//int units = 0x1000;
+
+for (int k = 0; k < units; k++) 
+{
+   printf("Touched page = %d at memory address: 0x%X. The Base memory address is 0x%X with offset = %d bytes\n",k,vmAddress+4096*k,vmAddress,4096*k);
+   }
+   
+   return 0;
 }

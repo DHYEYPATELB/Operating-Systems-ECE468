@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
       switch (vmOp)
       {
          case 1:  // Reserve a region
-            //reserveBytes = 0x10000; // sets bytes to 65536 for reserve
-            lpvAddr = VirtualAlloc(vmAddress, units << 16, MEM_RESERVE, flProtect); // only works with PAGE_READONLY
+            reserveBytes = 0x10000; // sets bytes to 65536 for reserve
+            lpvAddr = VirtualAlloc(vmAddress, reserveBytes, MEM_RESERVE, flProtect); // only works with PAGE_READONLY
             if(lpvAddr == NULL) {
                printf("Case 1: Reserve a region, VirtualAlloc() failed. Error: %ld\n", GetLastError());
             }
@@ -161,8 +161,9 @@ int main(int argc, char *argv[])
             VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
             break;
          case 3:  // Touch pages in a block
-             for (int i = 0; i < units; ++i ) {
-                    printf("Touching 0x%p\n", (char *)vmAddress + 4096 * i);
+            // We are looping through the base address we input (vmAddress) and touching each 4096 byte block (page size) until < units, so if units was 2, we would touch 2 pages of size 4096 bytes each at the given vmAdress as our base address that we start   the loop
+             for (int k=0; k<units; k++) {
+                    printf("Touched page = %d at memory address: 0x%X. The Base memory address is 0x%X with offset = %d bytes\n",k,vmAddress+4096*k,vmAddress,4096*k);
                 }
             break;
          case 4:  // Lock a block of pages
