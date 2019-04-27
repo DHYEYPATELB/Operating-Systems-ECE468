@@ -161,7 +161,9 @@ int main(int argc, char *argv[])
             VirtualAlloc(vmAddress, units, MEM_COMMIT, flProtect);
             break;
          case 3:  // Touch pages in a block
-            // provide the code that does this operation
+             for (int i = 0; i < units; ++i ) {
+                    printf("Touching 0x%p\n", (char *)vmAddress + 4096 * i);
+                }
             break;
          case 4:  // Lock a block of pages
             VirtualLock(vmAddress, units);
